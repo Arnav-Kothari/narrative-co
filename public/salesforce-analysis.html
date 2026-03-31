@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Competitive X Analysis: Salesforce vs. The Field</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --navy: #0B1426; --slate-light: #334155;
+    --sf-blue: #0176D3; --sf-blue-light: #1B96FF; --sf-blue-glow: rgba(1,118,211,0.15);
+    --green: #4ADE80; --green-glow: rgba(74,222,128,0.08); --green-border: rgba(74,222,128,0.18);
+    --red: #FF6B6B; --red-glow: rgba(255,107,107,0.08); --red-border: rgba(255,107,107,0.18);
+    --amber: #FBBF24;
+    --text-1: #F1F5F9; --text-2: #94A3B8; --text-3: #64748B;
+    --border: rgba(255,255,255,0.06); --card: rgba(255,255,255,0.03);
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--navy); color: var(--text-1); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+
+  /* HERO */
+  .hero { min-height: 85vh; display: flex; flex-direction: column; justify-content: center; padding: 80px 0; position: relative; }
+  .hero::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 60%; height: 1px; background: linear-gradient(90deg, transparent, var(--slate-light), transparent); }
+  .badge { display: inline-flex; align-items: center; gap: 8px; background: var(--sf-blue-glow); border: 1px solid rgba(1,118,211,0.25); border-radius: 100px; padding: 6px 16px; font-size: 13px; font-weight: 500; color: var(--sf-blue-light); margin-bottom: 32px; width: fit-content; }
+  .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--sf-blue-light); }
+  .hero h1 { font-size: clamp(40px, 5.5vw, 68px); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 24px; max-width: 800px; }
+  .hero h1 span { color: var(--sf-blue-light); }
+  .hero-sub { font-size: 18px; color: var(--text-2); max-width: 540px; line-height: 1.7; }
+  .hero-meta { display: flex; gap: 32px; margin-top: 48px; flex-wrap: wrap; }
+  .hero-meta-item { font-size: 13px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; }
+  .hero-meta-item strong { display: block; color: var(--text-2); font-weight: 500; font-size: 14px; text-transform: none; letter-spacing: 0; margin-top: 4px; }
+
+  /* SECTIONS */
+  section { padding: 100px 0; position: relative; }
+  section + section::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 60%; height: 1px; background: linear-gradient(90deg, transparent, var(--slate-light), transparent); }
+  .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--sf-blue-light); margin-bottom: 16px; }
+  .title { font-size: clamp(28px, 3.5vw, 42px); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; line-height: 1.15; }
+  .desc { font-size: 17px; color: var(--text-2); max-width: 620px; margin-bottom: 48px; line-height: 1.7; }
+
+  /* CARDS */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; transition: border-color 0.3s; }
+  .card:hover { border-color: rgba(255,255,255,0.1); }
+  .card.sf { background: var(--sf-blue-glow); border-color: rgba(1,118,211,0.2); }
+  .card.good { background: var(--green-glow); border-color: var(--green-border); }
+  .card.warn { background: var(--red-glow); border-color: var(--red-border); }
+  .card-label { font-size: 13px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
+  .card.sf .card-label { color: var(--sf-blue-light); }
+  .card.good .card-label { color: var(--green); }
+  .card.warn .card-label { color: var(--red); }
+  .card-value { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .card-sub { font-size: 13px; color: var(--text-3); }
+  .card-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-2); }
+  .card-row:last-child { border-bottom: none; }
+  .card-row span:last-child { font-weight: 600; color: var(--text-1); }
+
+  /* BIG NUMBER */
+  .big { border-radius: 20px; padding: 56px 48px; text-align: center; margin: 24px 0; }
+  .big.red { background: var(--red-glow); border: 1px solid var(--red-border); }
+  .big.green { background: var(--green-glow); border: 1px solid var(--green-border); }
+  .big.blue { background: var(--sf-blue-glow); border: 1px solid rgba(1,118,211,0.2); }
+  .big-num { font-size: clamp(48px, 7vw, 80px); font-weight: 900; letter-spacing: -0.04em; line-height: 1; margin-bottom: 12px; }
+  .big.red .big-num { color: var(--red); }
+  .big.green .big-num { color: var(--green); }
+  .big.blue .big-num { color: var(--sf-blue-light); }
+  .big-label { font-size: 17px; color: var(--text-2); margin-bottom: 32px; }
+  .big-row { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+  .big-item { text-align: center; }
+  .big-item-val { font-size: 28px; font-weight: 800; color: var(--amber); }
+  .big-item-label { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+
+  /* CHART */
+  .chart-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin: 24px 0; }
+  .chart-wrap canvas { max-height: 400px; }
+
+  /* COMP CARDS */
+  .comp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .comp { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px 28px; transition: border-color 0.3s, transform 0.3s; }
+  .comp:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-2px); }
+  .comp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .comp-name { font-size: 20px; font-weight: 700; }
+  .comp-badge { font-size: 13px; font-weight: 600; color: var(--green); background: rgba(74,222,128,0.1); padding: 4px 12px; border-radius: 100px; }
+  .comp ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .comp li { font-size: 14px; color: var(--text-2); line-height: 1.6; padding-left: 16px; position: relative; }
+  .comp li::before { content: ''; position: absolute; left: 0; top: 9px; width: 5px; height: 5px; border-radius: 50%; background: var(--sf-blue-light); }
+
+  /* QUOTE */
+  .quote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0; }
+  .quote { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; }
+  .quote-src { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 16px; }
+  .quote p { font-size: 15px; color: var(--text-2); font-style: italic; line-height: 1.7; }
+  .quote.good { border-color: var(--green-border); }
+  .quote.good .quote-src { color: var(--green); }
+  .quote.sf { border-color: rgba(1,118,211,0.15); }
+  .quote.sf .quote-src { color: var(--sf-blue-light); }
+
+  /* RECS */
+  .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .rec { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; transition: border-color 0.3s; }
+  .rec:hover { border-color: rgba(1,118,211,0.3); }
+  .rec:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .rec-num { font-size: 13px; font-weight: 700; color: var(--sf-blue-light); margin-bottom: 12px; }
+  .rec-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .rec-desc { font-size: 14px; color: var(--text-2); line-height: 1.7; }
+
+  /* CADENCE */
+  .cad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 24px 0; }
+  .cad { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; text-align: center; }
+  .cad-val { font-size: 42px; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 4px; }
+  .cad-label { font-size: 13px; color: var(--text-3); }
+
+  /* BOTTOM */
+  .bottom { text-align: center; padding: 120px 0; }
+  .bottom p { font-size: clamp(22px, 3vw, 32px); font-weight: 600; line-height: 1.5; max-width: 700px; margin: 0 auto; color: var(--text-2); }
+  .bottom p strong { color: var(--text-1); font-weight: 700; }
+  footer { padding: 40px 0; text-align: center; font-size: 13px; color: var(--text-3); border-top: 1px solid var(--border); }
+
+  .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+  .note { font-size: 15px; color: var(--text-2); margin-top: 24px; max-width: 640px; line-height: 1.7; }
+
+  @media (max-width: 900px) {
+    .container { padding: 0 24px; }
+    .grid-3, .comp-grid, .cad-grid { grid-template-columns: 1fr; }
+    .grid-2, .quote-grid, .rec-grid { grid-template-columns: 1fr; }
+    .rec:last-child { grid-column: auto; }
+    .big-row { gap: 24px; }
+  }
+  @media (max-width: 600px) {
+    section { padding: 64px 0; }
+    .big { padding: 40px 24px; }
+    .hero-meta { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 1. HERO — set the stage -->
+<!-- ═══════════════════════════════════════════ -->
+<header class="hero">
+  <div class="container">
+    <div class="badge">Competitive Intelligence</div>
+    <h1>Competitive X Analysis:<br><span>Salesforce</span> vs. The Field</h1>
+    <p class="hero-sub">Where @Salesforce stands against five peer brands on X — what's working, what competitors are doing differently, and where the biggest opportunities are.</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">Data Window<strong>Dec 2025 — Mar 2026</strong></div>
+      <div class="hero-meta-item">Posts Analyzed<strong>357 posts across 6 accounts</strong></div>
+      <div class="hero-meta-item">Prepared by<strong>The Narrative Company</strong></div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 2. THE GOOD NEWS — lead with strengths -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">The Good News</div>
+    <h2 class="title fade-in">Salesforce has real advantages</h2>
+    <p class="desc fade-in">Before diving into competitive gaps, it's worth recognizing the foundation. Salesforce has strengths that most competitors simply can't match.</p>
+
+    <div class="grid-2 fade-in">
+      <div class="card good">
+        <div class="card-label">Reach leader among enterprise SaaS</div>
+        <div class="card-value" style="color:var(--green)">5,430</div>
+        <div class="card-sub">Median views per post</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>vs. HubSpot</span><span style="color:var(--green)">1.6x more</span></div>
+          <div class="card-row"><span>vs. ServiceNow</span><span style="color:var(--green)">3.7x more</span></div>
+        </div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Cultural moment capability</div>
+        <div class="card-value" style="color:var(--green)">4.8M</div>
+        <div class="card-sub">Peak views (MrBeast campaign)</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>F1 AI Companion</span><span>107K views</span></div>
+          <div class="card-row"><span>Dreamforce content</span><span>High reach</span></div>
+        </div>
+      </div>
+      <div class="card good">
+        <div class="card-label">CEO as amplification engine</div>
+        <div class="card-value" style="color:var(--green)">79K</div>
+        <div class="card-sub">Median views on Marc Benioff posts</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>vs. brand account median</span><span style="color:var(--green)">14.6x more</span></div>
+          <div class="card-row"><span>Built-in audience</span><span>Few peers have this</span></div>
+        </div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Operational bandwidth</div>
+        <div class="card-value" style="color:var(--green)">140</div>
+        <div class="card-sub">Posts in analysis window — most of any account</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>vs. Google (next closest)</span><span>133 posts</span></div>
+          <div class="card-row"><span>vs. Anthropic</span><span>50 posts</span></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="note fade-in">The audience is there. The team capacity is there. The flashes of great content are there.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 3. THE LANDSCAPE — all 6 accounts at a glance -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">The Landscape</div>
+    <h2 class="title fade-in">Six accounts, side by side</h2>
+    <p class="desc fade-in">Here's how the numbers compare across all six accounts. Salesforce leads on reach and volume — the gap is in engagement rate, and that's where the opportunity sits.</p>
+
+    <div class="grid-3 fade-in">
+      <div class="card sf">
+        <div class="card-label">Salesforce</div>
+        <div class="card-value">0.197%</div>
+        <div class="card-sub">Engagement Rate</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>Median Views</span><span>5,430</span></div>
+          <div class="card-row"><span>Posts</span><span>140</span></div>
+          <div class="card-row"><span>Median Likes</span><span>18</span></div>
+          <div class="card-row"><span>Comments/Post</span><span>5.0</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Microsoft</div>
+        <div class="card-value">0.265%</div>
+        <div class="card-sub">Engagement Rate</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>Median Views</span><span>64,160</span></div>
+          <div class="card-row"><span>Posts</span><span>4</span></div>
+          <div class="card-row"><span>Median Likes</span><span>288</span></div>
+          <div class="card-row"><span>Comments/Post</span><span>78.8</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Google</div>
+        <div class="card-value">0.366%</div>
+        <div class="card-sub">Engagement Rate</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>Median Views</span><span>92,361</span></div>
+          <div class="card-row"><span>Posts</span><span>133</span></div>
+          <div class="card-row"><span>Median Likes</span><span>618</span></div>
+          <div class="card-row"><span>Comments/Post</span><span>26.0</span></div>
+        </div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Anthropic</div>
+        <div class="card-value" style="color:var(--green)">0.372%</div>
+        <div class="card-sub">Engagement Rate</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>Median Views</span><span>467,690</span></div>
+          <div class="card-row"><span>Posts</span><span>50</span></div>
+          <div class="card-row"><span>Median Likes</span><span>2,716</span></div>
+          <div class="card-row"><span>Comments/Post</span><span style="color:var(--green)">115.0</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">HubSpot</div>
+        <div class="card-value">0.645%</div>
+        <div class="card-sub">Engagement Rate</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>Median Views</span><span>3,327</span></div>
+          <div class="card-row"><span>Posts</span><span>13</span></div>
+          <div class="card-row"><span>Median Likes</span><span>14</span></div>
+          <div class="card-row"><span>Comments/Post</span><span>4.0</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">ServiceNow</div>
+        <div class="card-value">0.947%</div>
+        <div class="card-sub">Engagement Rate</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>Median Views</span><span>1,462</span></div>
+          <div class="card-row"><span>Posts</span><span>17</span></div>
+          <div class="card-row"><span>Median Likes</span><span>9</span></div>
+          <div class="card-row"><span>Comments/Post</span><span>1.7</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 4. THE GAP — engagement rate comparison -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">The Engagement Gap</div>
+    <h2 class="title fade-in">Reach is strong. Engagement rate is the opportunity.</h2>
+    <p class="desc fade-in">Salesforce already outpaces HubSpot and ServiceNow on raw reach. The gap is in engagement rate — the percentage of viewers who actually interact. Closing that gap converts passive impressions into active conversation.</p>
+
+    <div class="chart-wrap fade-in">
+      <canvas id="erChart"></canvas>
+    </div>
+
+    <div class="big red fade-in" style="margin-top: 32px;">
+      <div class="big-num" style="font-size: clamp(40px,6vw,72px);">0.197%</div>
+      <div class="big-label">Current engagement rate — room to grow toward peer benchmarks</div>
+      <div class="big-row">
+        <div class="big-item"><div class="big-item-val">1.3x</div><div class="big-item-label">gap to Microsoft</div></div>
+        <div class="big-item"><div class="big-item-val">1.9x</div><div class="big-item-label">gap to Google</div></div>
+        <div class="big-item"><div class="big-item-val">3.3x</div><div class="big-item-label">gap to HubSpot</div></div>
+        <div class="big-item"><div class="big-item-val">4.8x</div><div class="big-item-label">gap to ServiceNow</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 6. COMPETITOR PLAYBOOKS — what to learn from -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">Competitor Learnings</div>
+    <h2 class="title fade-in">What's working for the field</h2>
+    <p class="desc fade-in">Each competitor has found a formula. Here are the patterns worth studying — several are things Salesforce is already doing in its best content.</p>
+
+    <div class="comp-grid fade-in">
+      <div class="comp">
+        <div class="comp-head">
+          <div class="comp-name">HubSpot</div>
+          <div class="comp-badge">0.645% ER</div>
+        </div>
+        <ul>
+          <li>Conversational, lowercase voice — posts like "OOO: officially unsupervised til 2026"</li>
+          <li>Only 7.7% of posts contain a link — almost pure native content</li>
+          <li>19.2% positive comment sentiment — strongest community warmth in the set</li>
+        </ul>
+      </div>
+      <div class="comp">
+        <div class="comp-head">
+          <div class="comp-name">ServiceNow</div>
+          <div class="comp-badge">0.947% ER</div>
+        </div>
+        <ul>
+          <li>Hook-first copy: "Enterprise AI promised less work. Instead, you got homework."</li>
+          <li>35.3% of posts contain questions — their highest format at 1.34% ER</li>
+          <li>Short posts under 100 chars reach 1.64% ER</li>
+        </ul>
+      </div>
+      <div class="comp">
+        <div class="comp-head">
+          <div class="comp-name">Google</div>
+          <div class="comp-badge">0.366% ER</div>
+        </div>
+        <ul>
+          <li>Partnership content performs best — Khan Academy collab hit 1.67% ER</li>
+          <li>260 brand replies in comments — actively engages in conversation</li>
+          <li>10.0% positive / 1.8% negative comment ratio — healthy sentiment</li>
+        </ul>
+      </div>
+      <div class="comp">
+        <div class="comp-head">
+          <div class="comp-name">Anthropic</div>
+          <div class="comp-badge">0.372% ER</div>
+        </div>
+        <ul>
+          <li>Only 50 posts — quality-over-quantity, 115 comments per post</li>
+          <li>19.0 avg likes per comment — highly engaged, substantive audience</li>
+          <li>Mission-driven content (healthcare, open source, safety) hits 1.2%+ ER</li>
+        </ul>
+      </div>
+      <div class="comp">
+        <div class="comp-head">
+          <div class="comp-name">Microsoft</div>
+          <div class="comp-badge">0.265% ER</div>
+        </div>
+        <ul>
+          <li>Ultra-selective cadence — only 4 posts, but 78.8 comments each</li>
+          <li>Copilot in Excel breakout: 569K views — real utility resonates</li>
+          <li>Real-world impact stories (Kenya pharmacies) drive best ER at 0.69%</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 7. VOICE — the biggest lever -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">The Biggest Lever</div>
+    <h2 class="title fade-in">Voice drives everything</h2>
+    <p class="desc fade-in">Across every competitor, the highest-performing content shares one trait: it sounds like a person, not a press release. Salesforce already does this in its humor content (0.90% ER) — the opportunity is making it the default.</p>
+
+    <div class="quote-grid fade-in">
+      <div class="quote sf">
+        <div class="quote-src">Salesforce (typical)</div>
+        <p>"Most enterprise work needs precision and reasoning together. Enterprise AI isn't choosing between LLMs and deterministic..."</p>
+      </div>
+      <div class="quote good">
+        <div class="quote-src">HubSpot</div>
+        <p>"everything from now on is a January problem"</p>
+      </div>
+      <div class="quote good">
+        <div class="quote-src">ServiceNow</div>
+        <p>"Enterprise AI promised less work. Instead, you got homework."</p>
+      </div>
+      <div class="quote good">
+        <div class="quote-src">Anthropic</div>
+        <p>"We had Claude run a shop in our office. After a rough start, the business is doing better. Mostly."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 8. CADENCE + FORMAT — tactical patterns -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">Cadence & Format</div>
+    <h2 class="title fade-in">Volume, frequency, and format patterns</h2>
+    <p class="desc fade-in">Salesforce has the highest posting frequency in the set — a sign of real operational capacity. The accounts generating the deepest conversation tend to post less often but with higher-impact formats.</p>
+
+    <div class="cad-grid fade-in">
+      <div class="cad" style="border-color:rgba(1,118,211,0.2); background:rgba(1,118,211,0.03);">
+        <div class="cad-val" style="color:var(--sf-blue-light)">11x/wk</div>
+        <div class="cad-label">Salesforce</div>
+      </div>
+      <div class="cad"><div class="cad-val">9.5x/wk</div><div class="cad-label">Google</div></div>
+      <div class="cad"><div class="cad-val">3.6x/wk</div><div class="cad-label">Anthropic</div></div>
+    </div>
+    <div class="cad-grid fade-in" style="margin-top:16px">
+      <div class="cad"><div class="cad-val">1.5x/wk</div><div class="cad-label">ServiceNow</div></div>
+      <div class="cad"><div class="cad-val">1x/wk</div><div class="cad-label">HubSpot</div></div>
+      <div class="cad"><div class="cad-val">0.3x/wk</div><div class="cad-label">Microsoft</div></div>
+    </div>
+
+    <div class="chart-wrap fade-in" style="margin-top: 40px;">
+      <canvas id="formatChart"></canvas>
+    </div>
+
+    <p class="note fade-in">Bright spot: Salesforce's hashtag content already hits 0.91% ER — on par with the best competitors. That's a format pattern worth expanding.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 9. COMMENT HEALTH — audience sentiment -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">Audience Sentiment</div>
+    <h2 class="title fade-in">What the comment sections tell us</h2>
+    <p class="desc fade-in">Comment sentiment is a window into brand perception. This is an area where proactive engagement — like Google's 260 brand replies — can meaningfully shift the ratio over time.</p>
+
+    <div class="chart-wrap fade-in">
+      <canvas id="sentimentChart"></canvas>
+    </div>
+
+    <div class="label fade-in" style="margin-top: 64px;">Conversation Depth</div>
+    <h2 class="title fade-in">Quality of the conversation</h2>
+    <p class="desc fade-in">Average likes per comment measures whether the conversation itself is interesting to others. This is where investing in community engagement pays dividends.</p>
+
+    <div class="chart-wrap fade-in">
+      <canvas id="commentChart"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 10. OPPORTUNITIES — the playbook -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">Opportunities</div>
+    <h2 class="title fade-in">Eight ways to close the gap</h2>
+    <p class="desc fade-in">Informed by competitive patterns, audience signals, and Salesforce's own top-performing content.</p>
+
+    <div class="rec-grid fade-in">
+      <div class="rec">
+        <div class="rec-num">01</div>
+        <div class="rec-title">Tighten the content mix</div>
+        <div class="rec-desc">Consider shifting from 11/week toward 5-7 higher-impact posts. Anthropic posts 3.6x/week and drives 115 comments per post. The bandwidth freed up can go toward deeper creative on each post.</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">02</div>
+        <div class="rec-title">Evolve the voice</div>
+        <div class="rec-desc">Salesforce's humor content already hits 0.90% ER — proof the team knows how to do this. The opportunity is making that conversational tone the default. Lead with insight, not product specs.</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">03</div>
+        <div class="rec-title">Broaden the content themes</div>
+        <div class="rec-desc">Customer results with specifics ("OpenTable cut resolution time by 40%"), cultural hooks (F1 AI Fan Companion hit 107K views), and CEO amplification (79K median views) all complement Agentforce content well.</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">04</div>
+        <div class="rec-title">Use retweeting as a curation lever</div>
+        <div class="rec-desc">The best-performing competitor handles use retweeting strategically — surfacing high-quality content from partners, employees, and the ecosystem. This turns the brand account into a destination people check in on regularly, not just a broadcast channel.</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">05</div>
+        <div class="rec-title">Invest in comment engagement</div>
+        <div class="rec-desc">Google runs a 10.0% positive / 1.8% negative ratio with active community engagement (260 brand replies). HubSpot is at 19.2% / 2.0%. Proactive, personality-driven engagement in the replies can shift sentiment.</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">06</div>
+        <div class="rec-title">Try the short + media formula</div>
+        <div class="rec-desc">Posts under 100 characters with attached media drive the highest ER across competitors. ServiceNow gets 1.34% ER with question-based posts — a format Salesforce uses in only 12.1% of content today.</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">07</div>
+        <div class="rec-title">Build on cultural moments</div>
+        <div class="rec-desc">The MrBeast campaign showed what's possible. Google's Maps launch hit 28.6M views. Building a faster creative pipeline for cultural and news-driven content can create more breakthrough moments.</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">08</div>
+        <div class="rec-title">Amplify the Marc Benioff flywheel</div>
+        <div class="rec-desc">Marc's posts hit 79K median views — higher than the brand account. Anthropic's brand is deeply connected to its leadership voice. Cross-posting and bridging CEO content with the brand account is a unique advantage.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 11. BOTTOM LINE -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="bottom">
+  <div class="container">
+    <p class="fade-in">
+      <strong>Salesforce has the largest enterprise platform on X.</strong><br><br>
+      The audience is already there. The operational capacity is already there.<br>The flashes of great content are already there.<br><br>
+      The opportunity is <strong>fewer posts, sharper voice, more human content</strong> —<br>and the data shows exactly where to start.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    The Narrative Company &middot; Competitive Intelligence &middot; March 2026
+  </div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+Chart.defaults.color = '#94A3B8';
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size = 13;
+Chart.defaults.plugins.legend.display = false;
+
+// ER Chart — Salesforce blue, others gray
+new Chart(document.getElementById('erChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Salesforce', 'Microsoft', 'Google', 'Anthropic', 'HubSpot', 'ServiceNow'],
+    datasets: [{
+      data: [0.197, 0.265, 0.366, 0.372, 0.645, 0.947],
+      backgroundColor: ['#FF6B6B', '#94A3B8', '#94A3B8', '#94A3B8', '#4ADE80', '#4ADE80'],
+      borderRadius: 8, barThickness: 48,
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { callback: v => v + '%' }, border: { display: false } },
+      y: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 600, size: 14 } } }
+    },
+    plugins: { tooltip: { callbacks: { label: ctx => ctx.raw + '% ER' } } }
+  }
+});
+
+// Sentiment chart — positive green, negative red
+new Chart(document.getElementById('sentimentChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Salesforce', 'Microsoft', 'Google', 'Anthropic', 'HubSpot'],
+    datasets: [
+      { label: 'Positive %', data: [6.8, 7.3, 10.0, 10.1, 19.2], backgroundColor: '#4ADE80', borderRadius: 8, barThickness: 32 },
+      { label: 'Negative %', data: [7.1, 5.4, 1.8, 1.5, 2.0], backgroundColor: '#FF6B6B', borderRadius: 8, barThickness: 32 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+    plugins: {
+      legend: { display: true, position: 'top', labels: { usePointStyle: true, pointStyle: 'circle', padding: 20 } },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.raw + '%' } }
+    },
+    scales: {
+      x: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 600, size: 13 } } },
+      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { callback: v => v + '%' }, border: { display: false }, beginAtZero: true }
+    }
+  }
+});
+
+// Comment quality — green for best, red for Salesforce
+new Chart(document.getElementById('commentChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Anthropic', 'Google', 'Microsoft', 'Salesforce'],
+    datasets: [{
+      label: 'Avg Likes per Comment',
+      data: [19.0, 12.9, 2.0, 1.5],
+      backgroundColor: ['#4ADE80', '#0176D3', '#94A3B8', '#FF6B6B'],
+      borderRadius: 8, barThickness: 48,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true, aspectRatio: 2.5,
+    scales: {
+      x: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 600, size: 14 } } },
+      y: { grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false }, beginAtZero: true, ticks: { callback: v => v.toFixed(0) } }
+    },
+    plugins: { tooltip: { callbacks: { label: ctx => ctx.raw + ' avg likes/comment' } } }
+  }
+});
+
+// Format chart — SF blue, competitor green
+new Chart(document.getElementById('formatChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Short (<100 chars)', 'With Media', 'With Questions', 'With Hashtags', 'With @Mentions', 'With Links'],
+    datasets: [
+      { label: 'Salesforce ER', data: [0.26, 0.30, 0.40, 0.91, 0.61, 0.20], backgroundColor: '#1B96FF', borderRadius: 6, barThickness: 28 },
+      { label: 'Best Competitor ER', data: [1.64, 1.88, 1.34, 0.90, 0.50, 0.30], backgroundColor: '#4ADE80', borderRadius: 6, barThickness: 28 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+    plugins: {
+      legend: { display: true, position: 'top', labels: { usePointStyle: true, pointStyle: 'circle', padding: 20 } },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.raw + '%' } }
+    },
+    scales: {
+      x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 } } },
+      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { callback: v => v + '%' }, border: { display: false }, beginAtZero: true }
+    }
+  }
+});
+</script>
+</body>
+</html>

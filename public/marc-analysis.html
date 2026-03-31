@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Competitive X Analysis: Marc Benioff vs. The Field</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --navy: #0B1426; --slate-light: #334155;
+    --sf-blue: #0176D3; --sf-blue-light: #1B96FF; --sf-blue-glow: rgba(1,118,211,0.15);
+    --green: #4ADE80; --green-glow: rgba(74,222,128,0.08); --green-border: rgba(74,222,128,0.18);
+    --red: #FF6B6B; --red-glow: rgba(255,107,107,0.08); --red-border: rgba(255,107,107,0.18);
+    --amber: #FBBF24;
+    --text-1: #F1F5F9; --text-2: #94A3B8; --text-3: #64748B;
+    --border: rgba(255,255,255,0.06); --card: rgba(255,255,255,0.03);
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--navy); color: var(--text-1); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+
+  /* HERO */
+  .hero { min-height: 85vh; display: flex; flex-direction: column; justify-content: center; padding: 80px 0; position: relative; }
+  .hero::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 60%; height: 1px; background: linear-gradient(90deg, transparent, var(--slate-light), transparent); }
+  .badge { display: inline-flex; align-items: center; gap: 8px; background: var(--sf-blue-glow); border: 1px solid rgba(1,118,211,0.25); border-radius: 100px; padding: 6px 16px; font-size: 13px; font-weight: 500; color: var(--sf-blue-light); margin-bottom: 32px; width: fit-content; }
+  .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--sf-blue-light); }
+  .hero h1 { font-size: clamp(40px, 5.5vw, 68px); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 24px; max-width: 800px; }
+  .hero h1 span { color: var(--sf-blue-light); }
+  .hero-sub { font-size: 18px; color: var(--text-2); max-width: 560px; line-height: 1.7; }
+  .hero-meta { display: flex; gap: 32px; margin-top: 48px; flex-wrap: wrap; }
+  .hero-meta-item { font-size: 13px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; }
+  .hero-meta-item strong { display: block; color: var(--text-2); font-weight: 500; font-size: 14px; text-transform: none; letter-spacing: 0; margin-top: 4px; }
+
+  /* SECTIONS */
+  section { padding: 100px 0; position: relative; }
+  section + section::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 60%; height: 1px; background: linear-gradient(90deg, transparent, var(--slate-light), transparent); }
+  .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--sf-blue-light); margin-bottom: 16px; }
+  .title { font-size: clamp(28px, 3.5vw, 42px); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; line-height: 1.15; }
+  .desc { font-size: 17px; color: var(--text-2); max-width: 620px; margin-bottom: 48px; line-height: 1.7; }
+
+  /* CARDS */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; transition: border-color 0.3s; }
+  .card:hover { border-color: rgba(255,255,255,0.1); }
+  .card.sf { background: var(--sf-blue-glow); border-color: rgba(1,118,211,0.2); }
+  .card.good { background: var(--green-glow); border-color: var(--green-border); }
+  .card.warn { background: var(--red-glow); border-color: var(--red-border); }
+  .card-label { font-size: 13px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
+  .card.sf .card-label { color: var(--sf-blue-light); }
+  .card.good .card-label { color: var(--green); }
+  .card.warn .card-label { color: var(--red); }
+  .card-value { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .card-sub { font-size: 13px; color: var(--text-3); }
+  .card-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-2); }
+  .card-row:last-child { border-bottom: none; }
+  .card-row span:last-child { font-weight: 600; color: var(--text-1); }
+
+  /* BIG NUMBER */
+  .big { border-radius: 20px; padding: 56px 48px; text-align: center; margin: 24px 0; }
+  .big.red { background: var(--red-glow); border: 1px solid var(--red-border); }
+  .big.green { background: var(--green-glow); border: 1px solid var(--green-border); }
+  .big.blue { background: var(--sf-blue-glow); border: 1px solid rgba(1,118,211,0.2); }
+  .big-num { font-size: clamp(48px, 7vw, 80px); font-weight: 900; letter-spacing: -0.04em; line-height: 1; margin-bottom: 12px; }
+  .big.red .big-num { color: var(--red); }
+  .big.green .big-num { color: var(--green); }
+  .big.blue .big-num { color: var(--sf-blue-light); }
+  .big-label { font-size: 17px; color: var(--text-2); margin-bottom: 32px; }
+  .big-row { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+  .big-item { text-align: center; }
+  .big-item-val { font-size: 28px; font-weight: 800; color: var(--amber); }
+  .big-item-label { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+
+  /* CHART */
+  .chart-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin: 24px 0; }
+  .chart-wrap canvas { max-height: 400px; }
+
+  /* COMP CARDS */
+  .comp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .comp { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px 28px; transition: border-color 0.3s, transform 0.3s; }
+  .comp:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-2px); }
+  .comp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .comp-name { font-size: 20px; font-weight: 700; }
+  .comp-badge { font-size: 13px; font-weight: 600; color: var(--green); background: rgba(74,222,128,0.1); padding: 4px 12px; border-radius: 100px; }
+  .comp ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .comp li { font-size: 14px; color: var(--text-2); line-height: 1.6; padding-left: 16px; position: relative; }
+  .comp li::before { content: ''; position: absolute; left: 0; top: 9px; width: 5px; height: 5px; border-radius: 50%; background: var(--sf-blue-light); }
+
+  /* QUOTE */
+  .quote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0; }
+  .quote { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; }
+  .quote-src { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 16px; }
+  .quote p { font-size: 15px; color: var(--text-2); font-style: italic; line-height: 1.7; }
+  .quote.good { border-color: var(--green-border); }
+  .quote.good .quote-src { color: var(--green); }
+  .quote.sf { border-color: rgba(1,118,211,0.15); }
+  .quote.sf .quote-src { color: var(--sf-blue-light); }
+
+  /* RECS */
+  .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .rec { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; transition: border-color 0.3s; }
+  .rec:hover { border-color: rgba(1,118,211,0.3); }
+  .rec:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .rec-num { font-size: 13px; font-weight: 700; color: var(--sf-blue-light); margin-bottom: 12px; }
+  .rec-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .rec-desc { font-size: 14px; color: var(--text-2); line-height: 1.7; }
+
+  /* CADENCE */
+  .cad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 24px 0; }
+  .cad { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; text-align: center; }
+  .cad-val { font-size: 42px; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 4px; }
+  .cad-label { font-size: 13px; color: var(--text-3); }
+
+  /* BOTTOM */
+  .bottom { text-align: center; padding: 120px 0; }
+  .bottom p { font-size: clamp(22px, 3vw, 32px); font-weight: 600; line-height: 1.5; max-width: 700px; margin: 0 auto; color: var(--text-2); }
+  .bottom p strong { color: var(--text-1); font-weight: 700; }
+  footer { padding: 40px 0; text-align: center; font-size: 13px; color: var(--text-3); border-top: 1px solid var(--border); }
+
+  .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+  .note { font-size: 15px; color: var(--text-2); margin-top: 24px; max-width: 640px; line-height: 1.7; }
+
+  @media (max-width: 900px) {
+    .container { padding: 0 24px; }
+    .grid-3, .comp-grid, .cad-grid { grid-template-columns: 1fr; }
+    .grid-2, .quote-grid, .rec-grid { grid-template-columns: 1fr; }
+    .rec:last-child { grid-column: auto; }
+    .big-row { gap: 24px; }
+  }
+  @media (max-width: 600px) {
+    section { padding: 64px 0; }
+    .big { padding: 40px 24px; }
+    .hero-meta { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 1. HERO -->
+<!-- ═══════════════════════════════════════════ -->
+<header class="hero">
+  <div class="container">
+    <div class="badge">CEO Competitive Intelligence</div>
+    <h1><span>Marc Benioff</span> vs.<br>Pichai, Nadella, Collison & McDermott</h1>
+    <p class="hero-sub">How @Benioff stacks up against four peer CEOs on X — where the gaps are, what the best-performing leaders are doing differently, and where to focus.</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">Data Window<strong>Jan — Mar 2026</strong></div>
+      <div class="hero-meta-item">Posts Analyzed<strong>177 posts across 5 CEOs</strong></div>
+      <div class="hero-meta-item">Comments Analyzed<strong>9,031 comments</strong></div>
+      <div class="hero-meta-item">Prepared by<strong>The Narrative Company</strong></div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 2. THE GOOD NEWS -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">What We're Doing Well</div>
+    <h2 class="title fade-in">Marc has real advantages</h2>
+
+    <div class="grid-3 fade-in">
+      <div class="card good">
+        <div class="card-label">Effort and commitment are there</div>
+        <div class="card-value" style="color:var(--green)">4.2x/wk</div>
+        <div class="card-sub">Most active CEO in the set — the investment is real</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>vs. Pichai</span><span>1.5x more posts</span></div>
+          <div class="card-row"><span>vs. Nadella</span><span>1.9x more posts</span></div>
+          <div class="card-row"><span>The energy is there</span><span>It's about channeling it</span></div>
+        </div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Strong comment sentiment</div>
+        <div class="card-value" style="color:var(--green)">2.4:1</div>
+        <div class="card-sub">Positive-to-negative ratio — #3 in the set</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>16.4% positive</span><span>vs. 6.7% negative</span></div>
+          <div class="card-row"><span>vs. Nadella</span><span>1.4:1 ratio</span></div>
+          <div class="card-row"><span>vs. Collison</span><span>1.8:1 ratio</span></div>
+        </div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Breakout capability</div>
+        <div class="card-value" style="color:var(--green)">1.65M</div>
+        <div class="card-sub">Peak views — Figure 03 post</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>8,575 likes</span><span>617 replies</span></div>
+          <div class="card-row"><span>Engagement rate</span><span style="color:var(--green)">0.66%</span></div>
+          <div class="card-row"><span>Proof the audience is there</span><span>When content hits</span></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="note fade-in">The effort is clearly there — Marc invests more time on X than any peer CEO. The community responds warmly when the content hits. The opportunity is channeling that energy into fewer, higher-impact moments.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 3. THE LANDSCAPE -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">The Landscape</div>
+    <h2 class="title fade-in">Five CEOs, side by side</h2>
+    <p class="desc fade-in">The raw numbers across all five accounts. Marc leads on cadence and content diversity — the gap is in per-post reach and engagement depth.</p>
+
+    <div class="grid-3 fade-in">
+      <div class="card sf">
+        <div class="card-label">Marc Benioff</div>
+        <div class="card-value">0.51%</div>
+        <div class="card-sub">Median Engagement Rate</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>Median Views</span><span>50,961</span></div>
+          <div class="card-row"><span>Posts</span><span>49</span></div>
+          <div class="card-row"><span>Median Likes</span><span>190</span></div>
+          <div class="card-row"><span>Comments/Post</span><span>29.7</span></div>
+          <div class="card-row"><span>Posts/Week</span><span>4.2</span></div>
+        </div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Sundar Pichai</div>
+        <div class="card-value" style="color:var(--green)">1.39%</div>
+        <div class="card-sub">Median Engagement Rate</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>Median Views</span><span>347,287</span></div>
+          <div class="card-row"><span>Posts</span><span>30</span></div>
+          <div class="card-row"><span>Median Likes</span><span>5,566</span></div>
+          <div class="card-row"><span>Comments/Post</span><span>85.9</span></div>
+          <div class="card-row"><span>Posts/Week</span><span>2.8</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Satya Nadella</div>
+        <div class="card-value">0.99%</div>
+        <div class="card-sub">Median Engagement Rate</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>Median Views</span><span>681,612</span></div>
+          <div class="card-row"><span>Posts</span><span>20</span></div>
+          <div class="card-row"><span>Median Likes</span><span>3,053</span></div>
+          <div class="card-row"><span>Comments/Post</span><span>124.5</span></div>
+          <div class="card-row"><span>Posts/Week</span><span>2.2</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Patrick Collison</div>
+        <div class="card-value">0.68%</div>
+        <div class="card-sub">Median Engagement Rate</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>Median Views</span><span>124,245</span></div>
+          <div class="card-row"><span>Posts</span><span>31</span></div>
+          <div class="card-row"><span>Median Likes</span><span>781</span></div>
+          <div class="card-row"><span>Comments/Post</span><span>71.4</span></div>
+          <div class="card-row"><span>Posts/Week</span><span>0.5</span></div>
+        </div>
+      </div>
+      <div class="card good">
+        <div class="card-label">Bill McDermott</div>
+        <div class="card-value" style="color:var(--green)">1.18%</div>
+        <div class="card-sub">Median Engagement Rate</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>Median Views</span><span>7,155</span></div>
+          <div class="card-row"><span>Posts</span><span>47</span></div>
+          <div class="card-row"><span>Median Likes</span><span>75</span></div>
+          <div class="card-row"><span>Comments/Post</span><span>6.3</span></div>
+          <div class="card-row"><span>Posts/Week</span><span>0.5</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 4. THE REACH GAP -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">The Reach Gap</div>
+    <h2 class="title fade-in">Per-post reach is the biggest gap</h2>
+    <p class="desc fade-in">Marc posts the most of any CEO in this set — but generates the second-lowest median views per post. Pichai and Nadella get dramatically more reach from fewer posts. This is the single highest-leverage area to improve.</p>
+
+    <div class="chart-wrap fade-in">
+      <canvas id="viewsChart"></canvas>
+    </div>
+
+    <div class="big red fade-in" style="margin-top: 32px;">
+      <div class="big-num" style="font-size: clamp(40px,6vw,72px);">51K</div>
+      <div class="big-label">Median views per post — compared to peer CEO medians</div>
+      <div class="big-row">
+        <div class="big-item"><div class="big-item-val">2.4x</div><div class="big-item-label">gap to Collison</div></div>
+        <div class="big-item"><div class="big-item-val">6.8x</div><div class="big-item-label">gap to Pichai</div></div>
+        <div class="big-item"><div class="big-item-val">13.4x</div><div class="big-item-label">gap to Nadella</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 5. THE ENGAGEMENT GAP -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">The Engagement Gap</div>
+    <h2 class="title fade-in">Engagement rate has room to grow</h2>
+    <p class="desc fade-in">Marc's median engagement rate (0.51%) ranks last in this set. Pichai and McDermott both clear 1% ER — converting views into interactions at 2x+ the rate. Even McDermott, with far less reach, drives stronger engagement per impression.</p>
+
+    <div class="chart-wrap fade-in">
+      <canvas id="erChart"></canvas>
+    </div>
+
+    <div class="grid-2 fade-in" style="margin-top: 32px;">
+      <div class="card warn">
+        <div class="card-label">Likes per post</div>
+        <div class="card-value" style="color:var(--red)">190</div>
+        <div class="card-sub">Median likes — #5 across all CEOs</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>vs. Collison</span><span>781 (4.1x)</span></div>
+          <div class="card-row"><span>vs. Nadella</span><span>3,053 (16.1x)</span></div>
+          <div class="card-row"><span>vs. Pichai</span><span>5,566 (29.3x)</span></div>
+        </div>
+      </div>
+      <div class="card warn">
+        <div class="card-label">Comments per post</div>
+        <div class="card-value" style="color:var(--red)">29.7</div>
+        <div class="card-sub">Avg comments per post — #5 across all CEOs</div>
+        <div style="margin-top:16px">
+          <div class="card-row"><span>vs. Collison</span><span>71.4 (2.4x)</span></div>
+          <div class="card-row"><span>vs. Pichai</span><span>85.9 (2.9x)</span></div>
+          <div class="card-row"><span>vs. Nadella</span><span>124.5 (4.2x)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 6. VOLUME vs IMPACT -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">Volume vs. Impact</div>
+    <h2 class="title fade-in">The inverse relationship</h2>
+    <p class="desc fade-in">A clear pattern emerges in the data: the CEOs who post least frequently generate the most reach and engagement per post. This isn't coincidence — it's signal.</p>
+
+    <div class="chart-wrap fade-in">
+      <canvas id="volumeChart"></canvas>
+    </div>
+
+    <div class="grid-3 fade-in" style="margin-top: 32px;">
+      <div class="card">
+        <div class="card-label">Satya Nadella</div>
+        <div class="card-value">20 posts</div>
+        <div class="card-sub">682K median views &middot; 124 comments each</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Bill McDermott</div>
+        <div class="card-value">47 posts</div>
+        <div class="card-sub">7K median views &middot; 1.18% ER</div>
+      </div>
+      <div class="card sf">
+        <div class="card-label">Marc Benioff</div>
+        <div class="card-value">49 posts</div>
+        <div class="card-sub">51K median views &middot; 0.51% ER</div>
+      </div>
+    </div>
+
+    <p class="note fade-in">This doesn't mean posting less is automatically better. But it suggests that selective, higher-impact posts get rewarded by the algorithm — and by audiences.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 7. COMPETITOR PLAYBOOKS -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">Competitor Playbooks</div>
+    <h2 class="title fade-in">What's working for the field</h2>
+    <p class="desc fade-in">Each CEO has found a distinct formula. Here are the patterns worth studying — and how they translate to actionable moves.</p>
+
+    <div class="comp-grid fade-in">
+      <div class="comp">
+        <div class="comp-head">
+          <div class="comp-name">Sundar Pichai</div>
+          <div class="comp-badge">1.39% ER</div>
+        </div>
+        <ul>
+          <li><strong>Actively replies to his own comments</strong> — 25 reply comments in the data set, far more than any other CEO. This likely boosts algorithmic reach and builds community loyalty.</li>
+          <li>Highest positive comment sentiment (17.9%) and lowest negative (5.5%) — the warmest audience of any CEO</li>
+          <li>Cultural content breaks through massively — India cricket World Cup post hit 100K+ likes</li>
+          <li>Long, substantive posts outperform his short ones (1.55% vs 0.98% ER)</li>
+        </ul>
+      </div>
+      <div class="comp">
+        <div class="comp-head">
+          <div class="comp-name">Satya Nadella</div>
+          <div class="comp-badge">0.99% ER</div>
+        </div>
+        <ul>
+          <li>Highest total views in the set (42M) despite only 20 posts — every post is an event</li>
+          <li>Product launches generate massive spikes — Copilot Studio hit 20.6M views</li>
+          <li>Real-world impact stories (AI pathology model: 2.7M views, 11K likes) consistently outperform</li>
+          <li>Only 10% of posts contain links — almost pure native storytelling</li>
+        </ul>
+      </div>
+      <div class="comp">
+        <div class="comp-head">
+          <div class="comp-name">Patrick Collison</div>
+          <div class="comp-badge">0.68% ER</div>
+        </div>
+        <ul>
+          <li>Highest avg likes per comment by far — <strong>69.7</strong> (vs. Benioff at 18.0) — his audience includes influential commenters whose replies go viral</li>
+          <li>Longest avg post length (365 chars) — substantive, essay-like observations that reward reading</li>
+          <li>Humor and cultural commentary break through — "Lord of the Rings names" post hit 1M views, 11.6K likes</li>
+          <li>Posts with links actually outperform (0.70% vs 0.66% ER) — curating interesting content adds value</li>
+        </ul>
+      </div>
+      <div class="comp">
+        <div class="comp-head">
+          <div class="comp-name">Bill McDermott</div>
+          <div class="comp-badge">1.18% ER</div>
+        </div>
+        <ul>
+          <li><strong>#2 engagement rate in the set</strong> despite the lowest reach (7K median views) — proves ER and reach are different levers</li>
+          <li>Best comment sentiment by far — 23.7% positive, only 4.1% negative (5.8:1 ratio). His audience is deeply loyal.</li>
+          <li>Heavy hashtag user (70% of posts) — motivational, leadership-focused content that drives community engagement</li>
+          <li>Similar posting cadence to Marc (0.5/wk) but with 47 posts vs 49 — the comparable volume makes the ER gap more striking</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 10. COMMENT HEALTH -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">Audience Sentiment</div>
+    <h2 class="title fade-in">What the comment sections reveal</h2>
+    <p class="desc fade-in">Comment sentiment reflects how the audience feels about the leader, not just the content. Marc has the healthiest positive-to-negative ratio — a genuine competitive advantage.</p>
+
+    <div class="chart-wrap fade-in">
+      <canvas id="sentimentChart"></canvas>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 11. SCORECARD -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">The Scorecard</div>
+    <h2 class="title fade-in">Where Marc stands</h2>
+    <p class="desc fade-in">A snapshot across the metrics that matter most. Strengths to build on — and clear gaps to close on reach, engagement, and conversation depth.</p>
+
+    <div class="grid-2 fade-in">
+      <div class="card good">
+        <div class="card-label">Comment sentiment</div>
+        <div class="card-value" style="color:var(--green)">#3 of 5</div>
+        <div class="card-sub">2.4:1 positive-to-negative ratio</div>
+        <div style="margin-top:12px">
+          <div class="card-row"><span>McDermott</span><span style="color:var(--green)">5.8:1</span></div>
+          <div class="card-row"><span>Pichai</span><span>3.3:1</span></div>
+          <div class="card-row"><span style="color:var(--sf-blue-light)">Benioff</span><span>2.4:1</span></div>
+          <div class="card-row"><span>Nadella</span><span style="color:var(--red)">1.4:1</span></div>
+        </div>
+      </div>
+      <div class="card warn">
+        <div class="card-label">Engagement rate</div>
+        <div class="card-value" style="color:var(--red)">#5 of 5</div>
+        <div class="card-sub">0.51% median ER</div>
+        <div style="margin-top:12px">
+          <div class="card-row"><span>Pichai</span><span style="color:var(--green)">1.39%</span></div>
+          <div class="card-row"><span>McDermott</span><span>1.18%</span></div>
+          <div class="card-row"><span>Nadella</span><span>0.99%</span></div>
+          <div class="card-row"><span>Collison</span><span>0.68%</span></div>
+          <div class="card-row"><span style="color:var(--sf-blue-light)">Benioff</span><span style="color:var(--red)">0.51%</span></div>
+        </div>
+      </div>
+      <div class="card warn">
+        <div class="card-label">Median views per post</div>
+        <div class="card-value" style="color:var(--red)">#4 of 5</div>
+        <div class="card-sub">51K median views</div>
+        <div style="margin-top:12px">
+          <div class="card-row"><span>Nadella</span><span style="color:var(--green)">682K</span></div>
+          <div class="card-row"><span>Pichai</span><span>347K</span></div>
+          <div class="card-row"><span>Collison</span><span>124K</span></div>
+          <div class="card-row"><span style="color:var(--sf-blue-light)">Benioff</span><span style="color:var(--red)">51K</span></div>
+          <div class="card-row"><span>McDermott</span><span>7.2K</span></div>
+        </div>
+      </div>
+      <div class="card warn">
+        <div class="card-label">Comments per post</div>
+        <div class="card-value" style="color:var(--red)">#4 of 5</div>
+        <div class="card-sub">29.7 avg comments per post</div>
+        <div style="margin-top:12px">
+          <div class="card-row"><span>Nadella</span><span style="color:var(--green)">124.5</span></div>
+          <div class="card-row"><span>Pichai</span><span>85.9</span></div>
+          <div class="card-row"><span>Collison</span><span>71.4</span></div>
+          <div class="card-row"><span style="color:var(--sf-blue-light)">Benioff</span><span style="color:var(--red)">29.7</span></div>
+          <div class="card-row"><span>McDermott</span><span>6.3</span></div>
+        </div>
+      </div>
+      <div class="card warn">
+        <div class="card-label">Median likes per post</div>
+        <div class="card-value" style="color:var(--red)">#4 of 5</div>
+        <div class="card-sub">190 median likes</div>
+        <div style="margin-top:12px">
+          <div class="card-row"><span>Pichai</span><span style="color:var(--green)">5,566</span></div>
+          <div class="card-row"><span>Nadella</span><span>3,053</span></div>
+          <div class="card-row"><span>Collison</span><span>781</span></div>
+          <div class="card-row"><span style="color:var(--sf-blue-light)">Benioff</span><span style="color:var(--red)">190</span></div>
+          <div class="card-row"><span>McDermott</span><span>75</span></div>
+        </div>
+      </div>
+      <div class="card warn">
+        <div class="card-label">Total views</div>
+        <div class="card-value" style="color:var(--red)">#4 of 5</div>
+        <div class="card-sub">6.0M total views</div>
+        <div style="margin-top:12px">
+          <div class="card-row"><span>Nadella</span><span style="color:var(--green)">42.1M</span></div>
+          <div class="card-row"><span>Pichai</span><span>18.1M</span></div>
+          <div class="card-row"><span>Collison</span><span>9.1M</span></div>
+          <div class="card-row"><span style="color:var(--sf-blue-light)">Benioff</span><span style="color:var(--red)">6.0M</span></div>
+          <div class="card-row"><span>McDermott</span><span>0.5M</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 12. OPPORTUNITIES -->
+<!-- ═══════════════════════════════════════════ -->
+<section>
+  <div class="container">
+    <div class="label fade-in">Opportunities</div>
+    <h2 class="title fade-in">Seven ways to close the gap</h2>
+    <p class="desc fade-in">Informed by competitive patterns, audience signals, and Marc's own top-performing content.</p>
+
+    <div class="rec-grid fade-in">
+      <div class="rec">
+        <div class="rec-num">01</div>
+        <div class="rec-title">Post less, hit harder</div>
+        <div class="rec-desc">Marc posts 4.2x/week but generates the lowest median views. Consider moving toward 2-3 high-conviction posts per week. Nadella posts 2.2x/week and gets 13.4x the median reach. Every competitor with fewer posts has higher per-post impact.</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">02</div>
+        <div class="rec-title">Reply to your own comment sections</div>
+        <div class="rec-desc">Pichai replies to 25 of his own comment threads — more than any other CEO. He also has the highest ER (1.39%) and best sentiment (17.9% positive, 5.5% negative). Engaging in the replies likely boosts algorithmic distribution and builds community loyalty. Marc has 5 replies in the data — there's room to 5x this.</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">03</div>
+        <div class="rec-title">Lead with opinions, not announcements</div>
+        <div class="rec-desc">Marc's breakout post was a two-word take on Figure 03 — "Impressive." Collison's best content is cultural commentary and wit. McDermott leads with motivational conviction. The posts that break through across the set are perspectives, not press releases.</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">04</div>
+        <div class="rec-title">Keep it short when it's not an essay</div>
+        <div class="rec-desc">Marc's short posts (&lt;100 chars) hit 0.58% ER vs 0.49% for longer ones. Nadella sees the same pattern. When the take is strong enough to stand alone, let it. Save length for substantive, high-conviction pieces.</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">05</div>
+        <div class="rec-title">Reduce link posts</div>
+        <div class="rec-desc">Marc's posts with links underperform (0.48% vs 0.51% ER). Only 10% of Nadella's posts and 3.3% of Pichai's contain links. The algorithm deprioritizes posts that drive traffic away from the platform. Share the insight natively, link in the replies.</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">06</div>
+        <div class="rec-title">Own a cultural moment</div>
+        <div class="rec-desc">Pichai's India cricket post got 100K+ likes. Marc's Figure 03 post got 1.65M views. Cultural and news-cycle content dramatically outperforms product content. Build a faster response pipeline for tech moments, industry news, and cultural hooks.</div>
+      </div>
+      <div class="rec">
+        <div class="rec-num">07</div>
+        <div class="rec-title">Make the comment section a destination</div>
+        <div class="rec-desc">Collison's comments average 69.7 likes each — his audience includes high-profile tech figures whose replies go viral. Cultivating a comment section where influential voices engage (through tagging, replying, and sparking debate) creates a flywheel that drives algorithmic reach.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 13. BOTTOM LINE -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="bottom">
+  <div class="container">
+    <p class="fade-in">
+      <strong>Marc puts more effort into X than any peer CEO in this set.</strong><br><br>
+      The commitment is clear. The community warmth is real.<br>The breakout moments prove the ceiling is much higher than the median.<br><br>
+      The opportunity is <strong>channeling that energy into fewer posts, bigger swings, and deeper engagement in the replies</strong> —<br>and the data shows exactly where to start.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    The Narrative Company &middot; CEO Competitive Intelligence &middot; March 2026
+  </div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+Chart.defaults.color = '#94A3B8';
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size = 13;
+Chart.defaults.plugins.legend.display = false;
+
+// Median Views Chart — linear scale with clean K/M labels
+new Chart(document.getElementById('viewsChart'), {
+  type: 'bar',
+  data: {
+    labels: ['McDermott', 'Benioff', 'Collison', 'Pichai', 'Nadella'],
+    datasets: [{
+      data: [7, 51, 124, 347, 682],
+      backgroundColor: ['#94A3B8', '#FF6B6B', '#94A3B8', '#4ADE80', '#94A3B8'],
+      borderRadius: 8, barThickness: 48,
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false }, min: 0, max: 800, ticks: { stepSize: 200, callback: v => v + 'K' } },
+      y: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 600, size: 14 } } }
+    },
+    plugins: {
+      tooltip: { callbacks: { label: ctx => ctx.raw + 'K median views' } }
+    }
+  }
+});
+
+// ER Chart
+new Chart(document.getElementById('erChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Benioff', 'Collison', 'Nadella', 'McDermott', 'Pichai'],
+    datasets: [{
+      data: [0.51, 0.68, 0.99, 1.18, 1.39],
+      backgroundColor: ['#FF6B6B', '#94A3B8', '#94A3B8', '#94A3B8', '#4ADE80'],
+      borderRadius: 8, barThickness: 48,
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { callback: v => v + '%' }, border: { display: false } },
+      y: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 600, size: 14 } } }
+    },
+    plugins: { tooltip: { callbacks: { label: ctx => ctx.raw + '% ER' } } }
+  }
+});
+
+// Volume vs Impact scatter — clean linear axes in K units
+new Chart(document.getElementById('volumeChart'), {
+  type: 'bubble',
+  data: {
+    datasets: [
+      { label: 'Benioff', data: [{ x: 4.18, y: 51, r: 14 }], backgroundColor: '#1B96FF' },
+      { label: 'Pichai', data: [{ x: 2.76, y: 347, r: 12 }], backgroundColor: '#4ADE80' },
+      { label: 'Nadella', data: [{ x: 2.15, y: 682, r: 16 }], backgroundColor: '#FBBF24' },
+      { label: 'Collison', data: [{ x: 0.46, y: 124, r: 10 }], backgroundColor: '#94A3B8' },
+      { label: 'McDermott', data: [{ x: 0.47, y: 7, r: 10 }], backgroundColor: '#C084FC' },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+    layout: { padding: { bottom: 20 } },
+    scales: {
+      x: { title: { display: true, text: 'Posts per Week', color: '#64748B' }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false }, min: -0.5, max: 5.5 },
+      y: { title: { display: true, text: 'Median Views per Post', color: '#64748B' }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false }, min: -50, max: 800, afterBuildTicks: axis => { axis.ticks = [0,200,400,600,800].map(v => ({value:v})); }, ticks: { callback: v => v <= 0 ? '' : v + 'K' } }
+    },
+    clip: false,
+    plugins: {
+      legend: { display: true, position: 'top', labels: { usePointStyle: true, pointStyle: 'circle', padding: 20 } },
+      tooltip: { callbacks: { label: ctx => { const v = ctx.raw.y; return ctx.dataset.label + ': ' + ctx.raw.x + ' posts/wk, ' + (v >= 1000 ? (v/1000).toFixed(1) + 'M' : v + 'K') + ' median views'; } } }
+    }
+  }
+});
+
+// Sentiment chart
+new Chart(document.getElementById('sentimentChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Collison', 'Nadella', 'Benioff', 'Pichai', 'McDermott'],
+    datasets: [
+      { label: 'Positive %', data: [12.2, 14.1, 16.4, 17.9, 23.7], backgroundColor: '#4ADE80', borderRadius: 8, barThickness: 32 },
+      { label: 'Negative %', data: [6.8, 10.0, 6.7, 5.5, 4.1], backgroundColor: '#FF6B6B', borderRadius: 8, barThickness: 32 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
+    plugins: {
+      legend: { display: true, position: 'top', labels: { usePointStyle: true, pointStyle: 'circle', padding: 20 } },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.raw + '%' } }
+    },
+    scales: {
+      x: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 600, size: 13 } } },
+      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { callback: v => v + '%' }, border: { display: false }, beginAtZero: true }
+    }
+  }
+});
+
+</script>
+</body>
+</html>
