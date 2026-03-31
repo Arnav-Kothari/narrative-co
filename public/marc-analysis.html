@@ -5,123 +5,132 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Competitive X Analysis: Marc Benioff vs. The Field</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
-    --navy: #0B1426; --slate-light: #334155;
-    --sf-blue: #0176D3; --sf-blue-light: #1B96FF; --sf-blue-glow: rgba(1,118,211,0.15);
-    --green: #4ADE80; --green-glow: rgba(74,222,128,0.08); --green-border: rgba(74,222,128,0.18);
-    --red: #FF6B6B; --red-glow: rgba(255,107,107,0.08); --red-border: rgba(255,107,107,0.18);
-    --amber: #FBBF24;
-    --text-1: #F1F5F9; --text-2: #94A3B8; --text-3: #64748B;
-    --border: rgba(255,255,255,0.06); --card: rgba(255,255,255,0.03);
+    --bg: #F6F1E9; --bg-2: #EDE7DB;
+    --text: #15130E; --text-2: #6B6157; --text-3: #A39888;
+    --accent: #C96A2B; --accent-dark: #B05A22;
+    --accent-glow: rgba(201,106,43,0.08); --accent-border: rgba(201,106,43,0.25);
+    --warn: #B8564F; --warn-glow: rgba(184,86,79,0.08); --warn-border: rgba(184,86,79,0.25);
+    --border: #DDD7CC; --card: #EDE7DB;
   }
   html { scroll-behavior: smooth; }
-  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--navy); color: var(--text-1); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  body { font-family: 'Inter', -apple-system, sans-serif; font-weight: 300; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
   .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+
+  /* KATHA HEADER */
+  .katha-header { padding: 32px 0; border-bottom: 1px solid var(--border); }
+  .katha-header .container { display: flex; justify-content: space-between; align-items: center; }
+  .katha-logo { position: relative; display: inline-block; font-family: 'Inter', sans-serif; font-weight: 400; font-size: 14px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--text); padding-top: 10px; }
+  .katha-logo::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--accent); }
+  .katha-header-right { font-size: 11px; color: var(--text-2); letter-spacing: 0.14em; text-transform: uppercase; }
 
   /* HERO */
   .hero { min-height: 85vh; display: flex; flex-direction: column; justify-content: center; padding: 80px 0; position: relative; }
-  .hero::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 60%; height: 1px; background: linear-gradient(90deg, transparent, var(--slate-light), transparent); }
-  .badge { display: inline-flex; align-items: center; gap: 8px; background: var(--sf-blue-glow); border: 1px solid rgba(1,118,211,0.25); border-radius: 100px; padding: 6px 16px; font-size: 13px; font-weight: 500; color: var(--sf-blue-light); margin-bottom: 32px; width: fit-content; }
-  .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--sf-blue-light); }
-  .hero h1 { font-size: clamp(40px, 5.5vw, 68px); font-weight: 800; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 24px; max-width: 800px; }
-  .hero h1 span { color: var(--sf-blue-light); }
-  .hero-sub { font-size: 18px; color: var(--text-2); max-width: 560px; line-height: 1.7; }
+  .hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: var(--border); }
+  .badge { display: inline-flex; align-items: center; gap: 8px; background: transparent; border: 1px solid var(--accent); border-radius: 0; padding: 6px 16px; font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 32px; width: fit-content; }
+  .hero h1 { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-style: italic; font-size: clamp(40px, 5.5vw, 68px); line-height: 1.05; letter-spacing: -0.01em; margin-bottom: 24px; max-width: 800px; color: var(--text); }
+  .hero h1 span { color: var(--accent); }
+  .hero-sub { font-size: 17px; font-weight: 300; color: var(--text-2); max-width: 560px; line-height: 1.85; }
   .hero-meta { display: flex; gap: 32px; margin-top: 48px; flex-wrap: wrap; }
-  .hero-meta-item { font-size: 13px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; }
-  .hero-meta-item strong { display: block; color: var(--text-2); font-weight: 500; font-size: 14px; text-transform: none; letter-spacing: 0; margin-top: 4px; }
+  .hero-meta-item { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.28em; font-weight: 400; }
+  .hero-meta-item strong { display: block; color: var(--text-2); font-weight: 400; font-size: 14px; text-transform: none; letter-spacing: 0; margin-top: 4px; }
 
   /* SECTIONS */
   section { padding: 100px 0; position: relative; }
-  section + section::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 60%; height: 1px; background: linear-gradient(90deg, transparent, var(--slate-light), transparent); }
-  .label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--sf-blue-light); margin-bottom: 16px; }
-  .title { font-size: clamp(28px, 3.5vw, 42px); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; line-height: 1.15; }
-  .desc { font-size: 17px; color: var(--text-2); max-width: 620px; margin-bottom: 48px; line-height: 1.7; }
+  section + section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--border); }
+  .label { font-size: 10px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.28em; color: var(--accent); margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+  .label::before { content: ''; display: block; width: 24px; height: 1px; background: var(--accent); }
+  .title { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(28px, 3.5vw, 42px); letter-spacing: -0.01em; margin-bottom: 16px; line-height: 1.15; color: var(--text); }
+  .desc { font-size: 17px; font-weight: 300; color: var(--text-2); max-width: 620px; margin-bottom: 48px; line-height: 1.85; }
 
   /* CARDS */
   .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0; }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; transition: border-color 0.3s; }
-  .card:hover { border-color: rgba(255,255,255,0.1); }
-  .card.sf { background: var(--sf-blue-glow); border-color: rgba(1,118,211,0.2); }
-  .card.good { background: var(--green-glow); border-color: var(--green-border); }
-  .card.warn { background: var(--red-glow); border-color: var(--red-border); }
-  .card-label { font-size: 13px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
-  .card.sf .card-label { color: var(--sf-blue-light); }
-  .card.good .card-label { color: var(--green); }
-  .card.warn .card-label { color: var(--red); }
-  .card-value { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 4px; }
-  .card-sub { font-size: 13px; color: var(--text-3); }
-  .card-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-2); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 0; padding: 28px 24px; transition: border-color 0.3s; }
+  .card:hover { border-color: var(--accent); }
+  .card.sf { background: var(--accent-glow); border-color: var(--accent-border); }
+  .card.good { background: var(--accent-glow); border-color: var(--accent-border); }
+  .card.warn { background: var(--warn-glow); border-color: var(--warn-border); }
+  .card-label { font-size: 10px; font-weight: 400; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.28em; margin-bottom: 16px; }
+  .card.sf .card-label { color: var(--accent); }
+  .card.good .card-label { color: var(--accent); }
+  .card.warn .card-label { color: var(--warn); }
+  .card-value { font-size: 32px; font-weight: 600; font-family: 'Inter', sans-serif; letter-spacing: -0.02em; margin-bottom: 4px; color: var(--text); }
+  .card-sub { font-size: 13px; font-weight: 300; color: var(--text-3); }
+  .card-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 300; color: var(--text-2); }
   .card-row:last-child { border-bottom: none; }
-  .card-row span:last-child { font-weight: 600; color: var(--text-1); }
+  .card-row span:last-child { font-weight: 500; color: var(--text); }
 
   /* BIG NUMBER */
-  .big { border-radius: 20px; padding: 56px 48px; text-align: center; margin: 24px 0; }
-  .big.red { background: var(--red-glow); border: 1px solid var(--red-border); }
-  .big.green { background: var(--green-glow); border: 1px solid var(--green-border); }
-  .big.blue { background: var(--sf-blue-glow); border: 1px solid rgba(1,118,211,0.2); }
-  .big-num { font-size: clamp(48px, 7vw, 80px); font-weight: 900; letter-spacing: -0.04em; line-height: 1; margin-bottom: 12px; }
-  .big.red .big-num { color: var(--red); }
-  .big.green .big-num { color: var(--green); }
-  .big.blue .big-num { color: var(--sf-blue-light); }
-  .big-label { font-size: 17px; color: var(--text-2); margin-bottom: 32px; }
+  .big { border-radius: 0; padding: 56px 48px; text-align: center; margin: 24px 0; }
+  .big.red { background: var(--warn-glow); border: 1px solid var(--warn-border); }
+  .big.green { background: var(--accent-glow); border: 1px solid var(--accent-border); }
+  .big.blue { background: var(--accent-glow); border: 1px solid var(--accent-border); }
+  .big-num { font-size: clamp(48px, 7vw, 80px); font-family: 'Inter', sans-serif; font-weight: 600; letter-spacing: -0.04em; line-height: 1; margin-bottom: 12px; }
+  .big.red .big-num { color: var(--warn); }
+  .big.green .big-num { color: var(--accent); }
+  .big.blue .big-num { color: var(--accent); }
+  .big-label { font-size: 17px; font-weight: 300; color: var(--text-2); margin-bottom: 32px; }
   .big-row { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
   .big-item { text-align: center; }
-  .big-item-val { font-size: 28px; font-weight: 800; color: var(--amber); }
-  .big-item-label { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+  .big-item-val { font-size: 28px; font-weight: 600; color: var(--accent); }
+  .big-item-label { font-size: 13px; font-weight: 300; color: var(--text-3); margin-top: 4px; }
 
   /* CHART */
-  .chart-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin: 24px 0; }
+  .chart-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 0; padding: 32px; margin: 24px 0; }
   .chart-wrap canvas { max-height: 400px; }
 
   /* COMP CARDS */
   .comp-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-  .comp { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px 28px; transition: border-color 0.3s, transform 0.3s; }
-  .comp:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-2px); }
+  .comp { background: var(--card); border: 1px solid var(--border); border-radius: 0; padding: 32px 28px; transition: border-color 0.3s, transform 0.3s; }
+  .comp:hover { border-color: var(--accent); transform: translateY(-2px); }
   .comp-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .comp-name { font-size: 20px; font-weight: 700; }
-  .comp-badge { font-size: 13px; font-weight: 600; color: var(--green); background: rgba(74,222,128,0.1); padding: 4px 12px; border-radius: 100px; }
+  .comp-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: var(--text); }
+  .comp-badge { font-size: 11px; font-weight: 500; color: var(--accent); background: transparent; border: 1px solid var(--accent); padding: 4px 12px; border-radius: 0; letter-spacing: 0.06em; }
   .comp ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-  .comp li { font-size: 14px; color: var(--text-2); line-height: 1.6; padding-left: 16px; position: relative; }
-  .comp li::before { content: ''; position: absolute; left: 0; top: 9px; width: 5px; height: 5px; border-radius: 50%; background: var(--sf-blue-light); }
+  .comp li { font-size: 14px; font-weight: 300; color: var(--text-2); line-height: 1.7; padding-left: 16px; position: relative; }
+  .comp li::before { content: ''; position: absolute; left: 0; top: 10px; width: 5px; height: 1px; background: var(--accent); }
 
   /* QUOTE */
   .quote-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0; }
-  .quote { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; }
-  .quote-src { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 16px; }
-  .quote p { font-size: 15px; color: var(--text-2); font-style: italic; line-height: 1.7; }
-  .quote.good { border-color: var(--green-border); }
-  .quote.good .quote-src { color: var(--green); }
-  .quote.sf { border-color: rgba(1,118,211,0.15); }
-  .quote.sf .quote-src { color: var(--sf-blue-light); }
+  .quote { background: var(--card); border: 1px solid var(--border); border-radius: 0; padding: 28px 24px; }
+  .quote-src { font-size: 10px; font-weight: 400; text-transform: uppercase; letter-spacing: 0.28em; color: var(--text-3); margin-bottom: 16px; }
+  .quote p { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 400; font-style: italic; color: var(--text-2); line-height: 1.6; }
+  .quote.good { border-color: var(--accent-border); }
+  .quote.good .quote-src { color: var(--accent); }
+  .quote.sf { border-color: var(--border); }
+  .quote.sf .quote-src { color: var(--text-3); }
 
   /* RECS */
   .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .rec { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; transition: border-color 0.3s; }
-  .rec:hover { border-color: rgba(1,118,211,0.3); }
+  .rec { background: var(--card); border: 1px solid var(--border); border-radius: 0; padding: 28px 24px; transition: border-color 0.3s; }
+  .rec:hover { border-color: var(--accent); }
   .rec:last-child:nth-child(odd) { grid-column: 1 / -1; }
-  .rec-num { font-size: 13px; font-weight: 700; color: var(--sf-blue-light); margin-bottom: 12px; }
-  .rec-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-  .rec-desc { font-size: 14px; color: var(--text-2); line-height: 1.7; }
+  .rec-num { font-size: 11px; font-weight: 500; color: var(--accent); margin-bottom: 12px; letter-spacing: 0.06em; }
+  .rec-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; margin-bottom: 8px; color: var(--text); }
+  .rec-desc { font-size: 14px; font-weight: 300; color: var(--text-2); line-height: 1.7; }
 
   /* CADENCE */
   .cad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 24px 0; }
-  .cad { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; text-align: center; }
-  .cad-val { font-size: 42px; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 4px; }
-  .cad-label { font-size: 13px; color: var(--text-3); }
+  .cad { background: var(--card); border: 1px solid var(--border); border-radius: 0; padding: 28px 24px; text-align: center; }
+  .cad-val { font-size: 42px; font-family: 'Inter', sans-serif; font-weight: 600; letter-spacing: -0.03em; margin-bottom: 4px; color: var(--text); }
+  .cad-label { font-size: 13px; font-weight: 300; color: var(--text-3); }
 
   /* BOTTOM */
   .bottom { text-align: center; padding: 120px 0; }
-  .bottom p { font-size: clamp(22px, 3vw, 32px); font-weight: 600; line-height: 1.5; max-width: 700px; margin: 0 auto; color: var(--text-2); }
-  .bottom p strong { color: var(--text-1); font-weight: 700; }
-  footer { padding: 40px 0; text-align: center; font-size: 13px; color: var(--text-3); border-top: 1px solid var(--border); }
+  .bottom p { font-family: 'Cormorant Garamond', serif; font-size: clamp(22px, 3vw, 32px); font-weight: 400; line-height: 1.5; max-width: 700px; margin: 0 auto; color: var(--text-2); }
+  .bottom p strong { color: var(--text); font-weight: 500; }
+  footer { padding: 40px 0; text-align: center; font-size: 11px; color: var(--text-3); border-top: 1px solid var(--border); letter-spacing: 0.06em; }
+  footer span.accent { color: var(--accent); }
 
-  .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .fade-in { opacity: 0; transform: translateY(16px); transition: opacity 0.7s ease, transform 0.7s ease; }
   .fade-in.visible { opacity: 1; transform: translateY(0); }
-  .note { font-size: 15px; color: var(--text-2); margin-top: 24px; max-width: 640px; line-height: 1.7; }
+  .note { font-size: 15px; font-weight: 300; color: var(--text-2); margin-top: 24px; max-width: 640px; line-height: 1.85; }
 
   @media (max-width: 900px) {
     .container { padding: 0 24px; }
@@ -138,6 +147,14 @@
 </style>
 </head>
 <body>
+
+<!-- KATHA HEADER -->
+<nav class="katha-header">
+  <div class="container">
+    <span class="katha-logo">Katha</span>
+    <span class="katha-header-right">CEO Competitive Intelligence</span>
+  </div>
+</nav>
 
 <!-- ═══════════════════════════════════════════ -->
 <!-- 1. HERO -->
@@ -167,7 +184,7 @@
     <div class="grid-3 fade-in">
       <div class="card good">
         <div class="card-label">Effort and commitment are there</div>
-        <div class="card-value" style="color:var(--green)">4.2x/wk</div>
+        <div class="card-value" style="color:var(--accent)">4.2x/wk</div>
         <div class="card-sub">Most active CEO in the set — the investment is real</div>
         <div style="margin-top:16px">
           <div class="card-row"><span>vs. Pichai</span><span>1.5x more posts</span></div>
@@ -177,7 +194,7 @@
       </div>
       <div class="card good">
         <div class="card-label">Strong comment sentiment</div>
-        <div class="card-value" style="color:var(--green)">2.4:1</div>
+        <div class="card-value" style="color:var(--accent)">2.4:1</div>
         <div class="card-sub">Positive-to-negative ratio — #3 in the set</div>
         <div style="margin-top:16px">
           <div class="card-row"><span>16.4% positive</span><span>vs. 6.7% negative</span></div>
@@ -187,11 +204,11 @@
       </div>
       <div class="card good">
         <div class="card-label">Breakout capability</div>
-        <div class="card-value" style="color:var(--green)">1.65M</div>
+        <div class="card-value" style="color:var(--accent)">1.65M</div>
         <div class="card-sub">Peak views — Figure 03 post</div>
         <div style="margin-top:16px">
           <div class="card-row"><span>8,575 likes</span><span>617 replies</span></div>
-          <div class="card-row"><span>Engagement rate</span><span style="color:var(--green)">0.66%</span></div>
+          <div class="card-row"><span>Engagement rate</span><span style="color:var(--accent)">0.66%</span></div>
           <div class="card-row"><span>Proof the audience is there</span><span>When content hits</span></div>
         </div>
       </div>
@@ -225,7 +242,7 @@
       </div>
       <div class="card good">
         <div class="card-label">Sundar Pichai</div>
-        <div class="card-value" style="color:var(--green)">1.39%</div>
+        <div class="card-value" style="color:var(--accent)">1.39%</div>
         <div class="card-sub">Median Engagement Rate</div>
         <div style="margin-top:16px">
           <div class="card-row"><span>Median Views</span><span>347,287</span></div>
@@ -261,7 +278,7 @@
       </div>
       <div class="card good">
         <div class="card-label">Bill McDermott</div>
-        <div class="card-value" style="color:var(--green)">1.18%</div>
+        <div class="card-value" style="color:var(--accent)">1.18%</div>
         <div class="card-sub">Median Engagement Rate</div>
         <div style="margin-top:16px">
           <div class="card-row"><span>Median Views</span><span>7,155</span></div>
@@ -316,7 +333,7 @@
     <div class="grid-2 fade-in" style="margin-top: 32px;">
       <div class="card warn">
         <div class="card-label">Likes per post</div>
-        <div class="card-value" style="color:var(--red)">190</div>
+        <div class="card-value" style="color:var(--warn)">190</div>
         <div class="card-sub">Median likes — #5 across all CEOs</div>
         <div style="margin-top:16px">
           <div class="card-row"><span>vs. Collison</span><span>781 (4.1x)</span></div>
@@ -326,7 +343,7 @@
       </div>
       <div class="card warn">
         <div class="card-label">Comments per post</div>
-        <div class="card-value" style="color:var(--red)">29.7</div>
+        <div class="card-value" style="color:var(--warn)">29.7</div>
         <div class="card-sub">Avg comments per post — #5 across all CEOs</div>
         <div style="margin-top:16px">
           <div class="card-row"><span>vs. Collison</span><span>71.4 (2.4x)</span></div>
@@ -464,72 +481,72 @@
     <div class="grid-2 fade-in">
       <div class="card good">
         <div class="card-label">Comment sentiment</div>
-        <div class="card-value" style="color:var(--green)">#3 of 5</div>
+        <div class="card-value" style="color:var(--accent)">#3 of 5</div>
         <div class="card-sub">2.4:1 positive-to-negative ratio</div>
         <div style="margin-top:12px">
-          <div class="card-row"><span>McDermott</span><span style="color:var(--green)">5.8:1</span></div>
+          <div class="card-row"><span>McDermott</span><span style="color:var(--accent)">5.8:1</span></div>
           <div class="card-row"><span>Pichai</span><span>3.3:1</span></div>
-          <div class="card-row"><span style="color:var(--sf-blue-light)">Benioff</span><span>2.4:1</span></div>
-          <div class="card-row"><span>Nadella</span><span style="color:var(--red)">1.4:1</span></div>
+          <div class="card-row"><span style="color:var(--accent)">Benioff</span><span>2.4:1</span></div>
+          <div class="card-row"><span>Nadella</span><span style="color:var(--warn)">1.4:1</span></div>
         </div>
       </div>
       <div class="card warn">
         <div class="card-label">Engagement rate</div>
-        <div class="card-value" style="color:var(--red)">#5 of 5</div>
+        <div class="card-value" style="color:var(--warn)">#5 of 5</div>
         <div class="card-sub">0.51% median ER</div>
         <div style="margin-top:12px">
-          <div class="card-row"><span>Pichai</span><span style="color:var(--green)">1.39%</span></div>
+          <div class="card-row"><span>Pichai</span><span style="color:var(--accent)">1.39%</span></div>
           <div class="card-row"><span>McDermott</span><span>1.18%</span></div>
           <div class="card-row"><span>Nadella</span><span>0.99%</span></div>
           <div class="card-row"><span>Collison</span><span>0.68%</span></div>
-          <div class="card-row"><span style="color:var(--sf-blue-light)">Benioff</span><span style="color:var(--red)">0.51%</span></div>
+          <div class="card-row"><span style="color:var(--accent)">Benioff</span><span style="color:var(--warn)">0.51%</span></div>
         </div>
       </div>
       <div class="card warn">
         <div class="card-label">Median views per post</div>
-        <div class="card-value" style="color:var(--red)">#4 of 5</div>
+        <div class="card-value" style="color:var(--warn)">#4 of 5</div>
         <div class="card-sub">51K median views</div>
         <div style="margin-top:12px">
-          <div class="card-row"><span>Nadella</span><span style="color:var(--green)">682K</span></div>
+          <div class="card-row"><span>Nadella</span><span style="color:var(--accent)">682K</span></div>
           <div class="card-row"><span>Pichai</span><span>347K</span></div>
           <div class="card-row"><span>Collison</span><span>124K</span></div>
-          <div class="card-row"><span style="color:var(--sf-blue-light)">Benioff</span><span style="color:var(--red)">51K</span></div>
+          <div class="card-row"><span style="color:var(--accent)">Benioff</span><span style="color:var(--warn)">51K</span></div>
           <div class="card-row"><span>McDermott</span><span>7.2K</span></div>
         </div>
       </div>
       <div class="card warn">
         <div class="card-label">Comments per post</div>
-        <div class="card-value" style="color:var(--red)">#4 of 5</div>
+        <div class="card-value" style="color:var(--warn)">#4 of 5</div>
         <div class="card-sub">29.7 avg comments per post</div>
         <div style="margin-top:12px">
-          <div class="card-row"><span>Nadella</span><span style="color:var(--green)">124.5</span></div>
+          <div class="card-row"><span>Nadella</span><span style="color:var(--accent)">124.5</span></div>
           <div class="card-row"><span>Pichai</span><span>85.9</span></div>
           <div class="card-row"><span>Collison</span><span>71.4</span></div>
-          <div class="card-row"><span style="color:var(--sf-blue-light)">Benioff</span><span style="color:var(--red)">29.7</span></div>
+          <div class="card-row"><span style="color:var(--accent)">Benioff</span><span style="color:var(--warn)">29.7</span></div>
           <div class="card-row"><span>McDermott</span><span>6.3</span></div>
         </div>
       </div>
       <div class="card warn">
         <div class="card-label">Median likes per post</div>
-        <div class="card-value" style="color:var(--red)">#4 of 5</div>
+        <div class="card-value" style="color:var(--warn)">#4 of 5</div>
         <div class="card-sub">190 median likes</div>
         <div style="margin-top:12px">
-          <div class="card-row"><span>Pichai</span><span style="color:var(--green)">5,566</span></div>
+          <div class="card-row"><span>Pichai</span><span style="color:var(--accent)">5,566</span></div>
           <div class="card-row"><span>Nadella</span><span>3,053</span></div>
           <div class="card-row"><span>Collison</span><span>781</span></div>
-          <div class="card-row"><span style="color:var(--sf-blue-light)">Benioff</span><span style="color:var(--red)">190</span></div>
+          <div class="card-row"><span style="color:var(--accent)">Benioff</span><span style="color:var(--warn)">190</span></div>
           <div class="card-row"><span>McDermott</span><span>75</span></div>
         </div>
       </div>
       <div class="card warn">
         <div class="card-label">Total views</div>
-        <div class="card-value" style="color:var(--red)">#4 of 5</div>
+        <div class="card-value" style="color:var(--warn)">#4 of 5</div>
         <div class="card-sub">6.0M total views</div>
         <div style="margin-top:12px">
-          <div class="card-row"><span>Nadella</span><span style="color:var(--green)">42.1M</span></div>
+          <div class="card-row"><span>Nadella</span><span style="color:var(--accent)">42.1M</span></div>
           <div class="card-row"><span>Pichai</span><span>18.1M</span></div>
           <div class="card-row"><span>Collison</span><span>9.1M</span></div>
-          <div class="card-row"><span style="color:var(--sf-blue-light)">Benioff</span><span style="color:var(--red)">6.0M</span></div>
+          <div class="card-row"><span style="color:var(--accent)">Benioff</span><span style="color:var(--warn)">6.0M</span></div>
           <div class="card-row"><span>McDermott</span><span>0.5M</span></div>
         </div>
       </div>
@@ -601,7 +618,7 @@
 
 <footer>
   <div class="container">
-    The Narrative Company &middot; CEO Competitive Intelligence &middot; March 2026
+    <span class="accent">The Narrative Company</span> &middot; CEO Competitive Intelligence &middot; March 2026
   </div>
 </footer>
 
@@ -611,27 +628,27 @@ const observer = new IntersectionObserver(entries => {
 }, { threshold: 0.15 });
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-Chart.defaults.color = '#94A3B8';
+Chart.defaults.color = '#6B6157';
 Chart.defaults.font.family = "'Inter', sans-serif";
 Chart.defaults.font.size = 13;
 Chart.defaults.plugins.legend.display = false;
 
-// Median Views Chart — linear scale with clean K/M labels
+// Median Views Chart
 new Chart(document.getElementById('viewsChart'), {
   type: 'bar',
   data: {
     labels: ['McDermott', 'Benioff', 'Collison', 'Pichai', 'Nadella'],
     datasets: [{
       data: [7, 51, 124, 347, 682],
-      backgroundColor: ['#94A3B8', '#FF6B6B', '#94A3B8', '#4ADE80', '#94A3B8'],
-      borderRadius: 8, barThickness: 48,
+      backgroundColor: ['#A39888', '#B8564F', '#A39888', '#C96A2B', '#A39888'],
+      borderRadius: 0, barThickness: 48,
     }]
   },
   options: {
     indexAxis: 'y', responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
     scales: {
-      x: { grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false }, min: 0, max: 800, ticks: { stepSize: 200, callback: v => v + 'K' } },
-      y: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 600, size: 14 } } }
+      x: { grid: { color: 'rgba(21,19,14,0.06)' }, border: { display: false }, min: 0, max: 800, ticks: { stepSize: 200, callback: v => v + 'K' } },
+      y: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 500, size: 14 } } }
     },
     plugins: {
       tooltip: { callbacks: { label: ctx => ctx.raw + 'K median views' } }
@@ -646,38 +663,38 @@ new Chart(document.getElementById('erChart'), {
     labels: ['Benioff', 'Collison', 'Nadella', 'McDermott', 'Pichai'],
     datasets: [{
       data: [0.51, 0.68, 0.99, 1.18, 1.39],
-      backgroundColor: ['#FF6B6B', '#94A3B8', '#94A3B8', '#94A3B8', '#4ADE80'],
-      borderRadius: 8, barThickness: 48,
+      backgroundColor: ['#B8564F', '#A39888', '#A39888', '#A39888', '#C96A2B'],
+      borderRadius: 0, barThickness: 48,
     }]
   },
   options: {
     indexAxis: 'y', responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
     scales: {
-      x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { callback: v => v + '%' }, border: { display: false } },
-      y: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 600, size: 14 } } }
+      x: { grid: { color: 'rgba(21,19,14,0.06)' }, ticks: { callback: v => v + '%' }, border: { display: false } },
+      y: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 500, size: 14 } } }
     },
     plugins: { tooltip: { callbacks: { label: ctx => ctx.raw + '% ER' } } }
   }
 });
 
-// Volume vs Impact scatter — clean linear axes in K units
+// Volume vs Impact scatter
 new Chart(document.getElementById('volumeChart'), {
   type: 'bubble',
   data: {
     datasets: [
-      { label: 'Benioff', data: [{ x: 4.18, y: 51, r: 14 }], backgroundColor: '#1B96FF' },
-      { label: 'Pichai', data: [{ x: 2.76, y: 347, r: 12 }], backgroundColor: '#4ADE80' },
-      { label: 'Nadella', data: [{ x: 2.15, y: 682, r: 16 }], backgroundColor: '#FBBF24' },
-      { label: 'Collison', data: [{ x: 0.46, y: 124, r: 10 }], backgroundColor: '#94A3B8' },
-      { label: 'McDermott', data: [{ x: 0.47, y: 7, r: 10 }], backgroundColor: '#C084FC' },
+      { label: 'Benioff', data: [{ x: 4.18, y: 51, r: 14 }], backgroundColor: '#C96A2B' },
+      { label: 'Pichai', data: [{ x: 2.76, y: 347, r: 12 }], backgroundColor: '#A39888' },
+      { label: 'Nadella', data: [{ x: 2.15, y: 682, r: 16 }], backgroundColor: '#6B6157' },
+      { label: 'Collison', data: [{ x: 0.46, y: 124, r: 10 }], backgroundColor: '#DDD7CC' },
+      { label: 'McDermott', data: [{ x: 0.47, y: 7, r: 10 }], backgroundColor: '#B8564F' },
     ]
   },
   options: {
     responsive: true, maintainAspectRatio: true, aspectRatio: 2.2,
     layout: { padding: { bottom: 20 } },
     scales: {
-      x: { title: { display: true, text: 'Posts per Week', color: '#64748B' }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false }, min: -0.5, max: 5.5 },
-      y: { title: { display: true, text: 'Median Views per Post', color: '#64748B' }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { display: false }, min: -50, max: 800, afterBuildTicks: axis => { axis.ticks = [0,200,400,600,800].map(v => ({value:v})); }, ticks: { callback: v => v <= 0 ? '' : v + 'K' } }
+      x: { title: { display: true, text: 'Posts per Week', color: '#6B6157' }, grid: { color: 'rgba(21,19,14,0.06)' }, border: { display: false }, min: -0.5, max: 5.5 },
+      y: { title: { display: true, text: 'Median Views per Post', color: '#6B6157' }, grid: { color: 'rgba(21,19,14,0.06)' }, border: { display: false }, min: -50, max: 800, afterBuildTicks: axis => { axis.ticks = [0,200,400,600,800].map(v => ({value:v})); }, ticks: { callback: v => v <= 0 ? '' : v + 'K' } }
     },
     clip: false,
     plugins: {
@@ -693,8 +710,8 @@ new Chart(document.getElementById('sentimentChart'), {
   data: {
     labels: ['Collison', 'Nadella', 'Benioff', 'Pichai', 'McDermott'],
     datasets: [
-      { label: 'Positive %', data: [12.2, 14.1, 16.4, 17.9, 23.7], backgroundColor: '#4ADE80', borderRadius: 8, barThickness: 32 },
-      { label: 'Negative %', data: [6.8, 10.0, 6.7, 5.5, 4.1], backgroundColor: '#FF6B6B', borderRadius: 8, barThickness: 32 }
+      { label: 'Positive %', data: [12.2, 14.1, 16.4, 17.9, 23.7], backgroundColor: '#C96A2B', borderRadius: 0, barThickness: 32 },
+      { label: 'Negative %', data: [6.8, 10.0, 6.7, 5.5, 4.1], backgroundColor: '#B8564F', borderRadius: 0, barThickness: 32 }
     ]
   },
   options: {
@@ -704,8 +721,8 @@ new Chart(document.getElementById('sentimentChart'), {
       tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.raw + '%' } }
     },
     scales: {
-      x: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 600, size: 13 } } },
-      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { callback: v => v + '%' }, border: { display: false }, beginAtZero: true }
+      x: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 500, size: 13 } } },
+      y: { grid: { color: 'rgba(21,19,14,0.06)' }, ticks: { callback: v => v + '%' }, border: { display: false }, beginAtZero: true }
     }
   }
 });
