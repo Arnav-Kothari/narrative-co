@@ -1210,48 +1210,57 @@ document.querySelectorAll('a, button, [data-tilt]').forEach(el => {
 function scramble(el) {
     const target = el.dataset.text;
     const pool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    const total = Math.ceil(target.length * 1.2);
 
-    /* Build per-character spans so each letter occupies fixed space */
+    /* Build per-character spans so each letter occupies fixed space.
+       Wrap each word in a nowrap container so the browser never
+       breaks mid-word (e.g. "You|r"). */
     el.textContent = '';
-    const spans = [];
-    for (let i = 0; i < target.length; i++) {
-        const s = document.createElement('span');
-        if (target[i] === ' ') {
-            s.innerHTML = '&nbsp;';
-            s.style.display = 'inline';
-        } else {
+    const chars = [];          /* { span, final } for each non-space char */
+    const words = target.split(' ');
+    const computedFont = getComputedStyle(el).font;
+
+    words.forEach((word, wi) => {
+        const wordWrap = document.createElement('span');
+        wordWrap.style.whiteSpace = 'nowrap';
+
+        for (let i = 0; i < word.length; i++) {
+            const s = document.createElement('span');
             s.textContent = pool[Math.floor(Math.random() * pool.length)];
-            /* Lock each character to the width of its final letter */
             s.style.display = 'inline-block';
             s.style.textAlign = 'center';
 
-            /* Measure the final character width */
             const measure = document.createElement('span');
             measure.style.visibility = 'hidden';
             measure.style.position = 'absolute';
-            measure.style.font = getComputedStyle(el).font;
-            measure.textContent = target[i];
+            measure.style.font = computedFont;
+            measure.textContent = word[i];
             document.body.appendChild(measure);
             s.style.width = measure.offsetWidth + 'px';
             document.body.removeChild(measure);
-        }
-        spans.push(s);
-        el.appendChild(s);
-    }
 
+            chars.push({ span: s, final: word[i] });
+            wordWrap.appendChild(s);
+        }
+        el.appendChild(wordWrap);
+
+        /* Add a regular space between words (not after the last) */
+        if (wi < words.length - 1) {
+            el.appendChild(document.createTextNode(' '));
+        }
+    });
+
+    const totalFrames = Math.ceil(chars.length * 1.2);
     let frame = 0;
     const run = setInterval(() => {
-        for (let i = 0; i < target.length; i++) {
-            if (target[i] === ' ') continue;
+        for (let i = 0; i < chars.length; i++) {
             if (i < frame / 1.2) {
-                spans[i].textContent = target[i];
+                chars[i].span.textContent = chars[i].final;
             } else {
-                spans[i].textContent = pool[Math.floor(Math.random() * pool.length)];
+                chars[i].span.textContent = pool[Math.floor(Math.random() * pool.length)];
             }
         }
         frame++;
-        if (frame > total) {
+        if (frame > totalFrames) {
             clearInterval(run);
         }
     }, 28);
