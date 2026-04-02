@@ -87,6 +87,8 @@
   .scale-table tr.needs-input td { color: var(--accent); font-weight: 400; }
   .scale-table tr.needs-input td:first-child { color: var(--accent); }
   .scale-table tr:last-child td { border-bottom: none; }
+  .scale-table tr.variable td { color: var(--text-3); font-style: italic; }
+  .scale-table tr.variable { background: var(--bg-2); }
 
   /* NOTE */
   .note { font-size: 15px; font-weight: 300; color: var(--text-2); margin-top: 24px; max-width: 640px; line-height: 1.85; }
@@ -206,12 +208,12 @@
           <td>Your suggestion</td>
           <td>Who would be the strongest fit?</td>
         </tr>
-        <tr>
+        <tr class="variable">
           <td>Company Handle 01</td>
           <td>Salesforce</td>
           <td>LinkedIn + X</td>
         </tr>
-        <tr>
+        <tr class="variable">
           <td>Company Handle 02+</td>
           <td>Per Moment</td>
           <td>Based on the moment's requirements</td>
