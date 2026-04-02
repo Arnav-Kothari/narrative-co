@@ -68,31 +68,31 @@
 
   .tasks { list-style: none; display: flex; flex-direction: column; gap: 12px; }
 
-  /* DEFAULT: gray - supporting work, no special meaning */
+  /* DEFAULT - no special meaning */
   .task { background: var(--card); border: 1px solid var(--border); padding: 20px 18px; transition: border-color 0.3s; }
   .task:hover { border-color: var(--text-3); }
 
-  /* AMBER: critical unlock - the move that makes everything else possible */
-  .task.critical { border-color: var(--accent-border); background: var(--accent-glow); }
-  .task.critical .task-tag { color: var(--accent); }
-  .task.critical .task-body { color: var(--text); }
-
-  /* SAGE: completed, achieved, positive outcome */
+  /* SAGE - positive, good, done */
   .task.done { border-color: var(--sage-border); background: var(--sage-glow); }
   .task.done .task-tag { color: var(--sage); }
   .task.done .task-body { color: var(--text); }
 
-  /* CLAY: risk, negative, blocked, off-track */
+  /* CLAY - negative, bad, risk */
   .task.risk { border-color: var(--clay-border); background: var(--clay-glow); }
   .task.risk .task-tag { color: var(--clay); }
   .task.risk .task-body { color: var(--text); }
 
-  /* STEEL: informational, in-progress, no judgment */
+  /* AMBER - the single critical unlock (max 1-2 per page) */
+  .task.critical { border-color: var(--accent-border); background: var(--accent-glow); }
+  .task.critical .task-tag { color: var(--accent); }
+  .task.critical .task-body { color: var(--text); }
+
+  /* STEEL - neutral, in progress, FYI */
   .task.info { border-color: var(--steel-border); background: var(--steel-glow); }
   .task.info .task-tag { color: var(--steel); }
   .task.info .task-body { color: var(--text); }
 
-  /* PLUM: category - people, team, hiring */
+  /* PLUM - category: people, team, hiring */
   .task.team { border-color: var(--plum-border); background: var(--plum-glow); }
   .task.team .task-tag { color: var(--plum); }
   .task.team .task-body { color: var(--text); }
@@ -172,7 +172,7 @@
   <div class="container">
     <div class="label">Timeline</div>
     <h2 class="title">Quarter by quarter</h2>
-    <p class="desc">Green is done. Orange is the critical unlock. Purple is a hire. Gray is supporting work. Every color means something.</p>
+    <p class="desc">Sage is positive. Amber is the critical unlock. Clay is risk. Plum is a hire. Steel is in progress. Default is supporting work. Every color means something.</p>
 
     <div class="timeline-grid">
 
@@ -235,7 +235,7 @@
             <div class="task-tag">Salesforce</div>
             <div class="task-body">Scope expansion and upsell</div>
           </li>
-          <li class="task info">
+          <li class="task done">
             <div class="task-tag">Client #2</div>
             <div class="task-body">First big moment delivered, move to full rate</div>
           </li>
