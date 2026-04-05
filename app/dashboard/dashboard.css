@@ -1,3 +1,12 @@
+/* ─── RESTORE NATIVE CURSOR (no custom cursor JS on this page) ── */
+body:has(.dash-hero) {
+    cursor: auto;
+}
+body:has(.dash-hero) a,
+body:has(.dash-hero) button {
+    cursor: pointer;
+}
+
 /* ─── DASHBOARD NAV ──────────────────────── */
 .dash-nav-right {
     display: flex;
