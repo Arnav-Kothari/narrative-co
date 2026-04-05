@@ -213,31 +213,12 @@ export default function Home() {
         <div className="container">
           <div className="shift-left">
             <div className="shift-label reveal">The gap</div>
-            <h2 className="reveal">Your comms team keeps your executives safe online. But safe doesn&apos;t build markets.</h2>
+            <h2 className="reveal">Most executive social is run by comms. Comms is built to protect, not distribute.</h2>
           </div>
-          <div className="reveal" style={{ transitionDelay: '0.15s' }}>
-            <div className="diagram">
-              <div className="shift-pair">
-                <span className="old">Post to avoid risk</span>
-                <span className="arrow">&rarr;</span>
-                <span className="new">Post to drive distribution</span>
-              </div>
-              <div className="shift-pair">
-                <span className="old">Social as a comms channel</span>
-                <span className="arrow">&rarr;</span>
-                <span className="new">Social as a marketing arm</span>
-              </div>
-              <div className="shift-pair">
-                <span className="old">Protect the narrative</span>
-                <span className="arrow">&rarr;</span>
-                <span className="new">Own the narrative</span>
-              </div>
-              <div className="shift-pair">
-                <span className="old">Executive presence as checkbox</span>
-                <span className="arrow">&rarr;</span>
-                <span className="new">Executive presence as leverage</span>
-              </div>
-            </div>
+          <div className="shift-right reveal" style={{ transitionDelay: '0.15s' }}>
+            <p className="shift-body">Your comms team is excellent at what they do - managing risk, protecting reputation, keeping messaging tight. But X and LinkedIn aren&apos;t press channels. They&apos;re distribution channels.</p>
+            <p className="shift-body">The opportunity isn&apos;t to replace comms. It&apos;s to add a layer that treats every executive post as a marketing moment - turning social from something you maintain into something that compounds.</p>
+            <p className="shift-body shift-accent">We sit between comms and marketing, so your executives can play offense without losing control.</p>
           </div>
         </div>
       </section>

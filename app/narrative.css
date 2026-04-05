@@ -303,36 +303,22 @@
     margin-bottom: 16px;
 }
 
-/* diagram - shift pairs */
-.diagram {
+/* shift right - prose */
+.shift-right {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-.shift-pair {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.shift-pair .old {
-    font-size: 14px;
+.shift-body {
+    font-size: 16px;
+    line-height: 1.85;
     color: var(--text-2);
-    text-decoration: line-through;
-    text-decoration-color: rgba(201,106,43,0.35);
 }
 
-.shift-pair .arrow {
-    font-size: 13px;
-    color: var(--border);
-    flex-shrink: 0;
-}
-
-.shift-pair .new {
-    font-size: 14px;
-    font-weight: 500;
+.shift-body.shift-accent {
     color: var(--accent);
+    font-weight: 500;
 }
 
 /* ─── WHAT WE DO ───────────────────────────── */
