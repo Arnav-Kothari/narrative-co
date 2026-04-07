@@ -1,20 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <style>
-    .tile  { fill: #EDE7DB; }
     .ink   { fill: #15130E; }
     .amber { fill: #C96A2B; }
     @media (prefers-color-scheme: dark) {
-      .tile { fill: #15130E; }
-      .ink  { fill: #EDE7DB; }
+      .ink { fill: #F6F1E9; }
     }
   </style>
-  <rect width="64" height="64" class="tile"/>
-  <rect x="15" y="13" width="34" height="1.6" class="amber"/>
+  <rect x="15" y="9" width="34" height="1.6" class="amber"/>
   <text x="32" y="54"
         text-anchor="middle"
         font-family="'Cormorant Garamond', 'Playfair Display', 'Times New Roman', Times, serif"
         font-weight="500"
         font-style="italic"
-        font-size="52"
+        font-size="54"
         class="ink">N<tspan class="amber">.</tspan></text>
 </svg>
