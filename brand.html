@@ -214,6 +214,78 @@
             color: var(--text-2);
         }
 
+        /* Two-piece system: section intro + mark subtitles */
+        .logo-intro {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-2);
+            max-width: 680px;
+            margin-bottom: 56px;
+        }
+
+        .mark-subtitle {
+            margin-top: 64px;
+            margin-bottom: 20px;
+        }
+
+        .mark-subtitle:first-of-type { margin-top: 0; }
+
+        .mark-subtitle-eyebrow {
+            display: block;
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.26em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .mark-subtitle-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 500;
+            font-size: 28px;
+            line-height: 1.2;
+            color: var(--text);
+        }
+
+        /* Monogram mark (italic Cormorant "N." + amber period + amber bar) */
+        .monogram-mark {
+            position: relative;
+            display: inline-block;
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 500;
+            font-style: italic;
+            font-size: 96px;
+            line-height: 0.9;
+            padding-top: 14px;
+        }
+
+        .monogram-mark::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 62%;
+            height: 1px;
+        }
+
+        .monogram-mark .period { display: inline; }
+
+        .monogram-mark.on-light { color: var(--text); }
+        .monogram-mark.on-light::before { background: var(--accent); }
+        .monogram-mark.on-light .period { color: var(--accent); }
+
+        .monogram-mark.on-dark { color: #F6F1E9; }
+        .monogram-mark.on-dark::before { background: var(--accent); }
+        .monogram-mark.on-dark .period { color: var(--accent); }
+
+        .monogram-mark.on-accent { color: #F6F1E9; }
+        .monogram-mark.on-accent::before { background: rgba(246,241,233,0.6); }
+        .monogram-mark.on-accent .period { color: rgba(246,241,233,0.6); }
+
         /* ─── COLORS ───────────────────────────── */
         .color-grid {
             display: grid;
@@ -424,7 +496,7 @@
         }
 
         .voice-items li::before {
-            content: '—';
+            content: '-';
             position: absolute;
             left: 0;
             color: var(--border);
@@ -580,7 +652,7 @@
     <div class="cover-logo">The Narrative Company</div>
     <div class="cover-center">
         <h1 class="cover-title">Brand<br>Guidelines</h1>
-        <p class="cover-sub">Visual Identity & Design System — v1.0</p>
+        <p class="cover-sub">Visual Identity & Design System - v1.1</p>
     </div>
     <div class="cover-footer">
         <p>The Narrative Company</p>
@@ -590,59 +662,107 @@
 
 <!-- ─── LOGO ──────────────────────────────────── -->
 <div class="page">
-    <div class="page-label">01 — Logo</div>
-    <h2 class="page-title">The Mark</h2>
+    <div class="page-label">01 - Logos</div>
+    <h2 class="page-title">The Marks</h2>
+
+    <p class="logo-intro">
+        A two-piece system. The primary wordmark is the default - use it wherever horizontal space allows. The "N." monogram is the reduced form, used only when the wordmark cannot fit: favicons, avatars, stationery embossing, tiny UI chrome. Both marks share one signature device: the 1px amber bar above the glyph.
+    </p>
+
+    <!-- ─── Primary Wordmark ─── -->
+    <div class="mark-subtitle">
+        <span class="mark-subtitle-eyebrow">01A - Default</span>
+        <h3 class="mark-subtitle-heading">Primary - Inline Wordmark</h3>
+    </div>
 
     <div class="logo-demos">
         <div class="logo-demo light">
             <span class="logo-mark on-light">The Narrative Company</span>
-            <span class="logo-demo-label">Primary — Light background</span>
+            <span class="logo-demo-label">Ivory - primary background</span>
         </div>
         <div class="logo-demo dark">
             <span class="logo-mark on-dark">The Narrative Company</span>
-            <span class="logo-demo-label">Reversed — Dark background</span>
+            <span class="logo-demo-label">Ink - reversed</span>
         </div>
         <div class="logo-demo cream">
             <span class="logo-mark on-light">The Narrative Company</span>
-            <span class="logo-demo-label">Primary — Cream background</span>
+            <span class="logo-demo-label">Cream - secondary background</span>
         </div>
         <div class="logo-demo accent-bg">
             <span class="logo-mark on-accent">The Narrative Company</span>
-            <span class="logo-demo-label">Reversed — Accent background</span>
+            <span class="logo-demo-label">Amber - accent surface</span>
         </div>
     </div>
 
+    <!-- ─── Reduced Mark ─── -->
+    <div class="mark-subtitle">
+        <span class="mark-subtitle-eyebrow">01B - When space collapses</span>
+        <h3 class="mark-subtitle-heading">Reduced - "N." Monogram</h3>
+    </div>
+
+    <div class="logo-demos">
+        <div class="logo-demo light">
+            <span class="monogram-mark on-light">N<span class="period">.</span></span>
+            <span class="logo-demo-label">Ivory</span>
+        </div>
+        <div class="logo-demo dark">
+            <span class="monogram-mark on-dark">N<span class="period">.</span></span>
+            <span class="logo-demo-label">Ink</span>
+        </div>
+        <div class="logo-demo cream">
+            <span class="monogram-mark on-light">N<span class="period">.</span></span>
+            <span class="logo-demo-label">Cream - canonical tile</span>
+        </div>
+        <div class="logo-demo accent-bg">
+            <span class="monogram-mark on-accent">N<span class="period">.</span></span>
+            <span class="logo-demo-label">Amber</span>
+        </div>
+    </div>
+
+    <!-- ─── Rules ─── -->
     <div class="logo-rules">
         <div class="logo-rule">
-            <h4>Typeface</h4>
-            <p>Inter Regular — 400 weight. Letter-spacing 0.4em. All uppercase.</p>
+            <h4>Wordmark typeface</h4>
+            <p>Inter Regular - 400 weight. Letter-spacing 0.4em. All uppercase. No italic, no weights other than 400.</p>
         </div>
         <div class="logo-rule">
-            <h4>The Bar</h4>
-            <p>A 1px amber line sits directly above the wordmark - a defining brand element that anchors the logo.</p>
+            <h4>Monogram typeface</h4>
+            <p>Cormorant Garamond Italic - 500 weight (Medium). A single capital "N" followed by an amber period (".") that sits on the baseline.</p>
+        </div>
+        <div class="logo-rule">
+            <h4>The bar</h4>
+            <p>A 1px amber line sits directly above both marks. This is the one signature device shared across the system - it is the brand.</p>
+        </div>
+        <div class="logo-rule">
+            <h4>When to use which</h4>
+            <p>Wordmark by default. Monogram only when horizontal space physically collapses - favicons (16-64 px), avatars, app icons, stationery embossing, watermarks, tiny UI chrome.</p>
+        </div>
+        <div class="logo-rule">
+            <h4>Wordmark minimum size</h4>
+            <p>80px wide in digital contexts. 20mm wide in print. Below that, switch to the monogram.</p>
+        </div>
+        <div class="logo-rule">
+            <h4>Monogram minimum size</h4>
+            <p>16×16 px. At 16 px the glyph is a hand-tuned pixel-art version (the italic serif cannot survive below 24 px without hand-tuning).</p>
         </div>
         <div class="logo-rule">
             <h4>Clear space</h4>
-            <p>Maintain clear space equal to the cap-height of the wordmark on all four sides. Never crowd the logo.</p>
-        </div>
-        <div class="logo-rule">
-            <h4>Minimum size</h4>
-            <p>No smaller than 80px wide in digital contexts. No smaller than 20mm in print.</p>
+            <p>Maintain clear space equal to the cap-height of the mark on all four sides. Never crowd either mark.</p>
         </div>
         <div class="logo-rule">
             <h4>Never</h4>
-            <p>Do not rotate, recolor outside the approved palette, add a drop shadow, stretch, or use on a busy photographic background.</p>
+            <p>Do not rotate, recolor outside the approved palette, add a drop shadow, stretch, or use on a busy photographic background. Do not swap the amber period in the monogram for ink or any other color.</p>
         </div>
         <div class="logo-rule">
             <h4>Bar color</h4>
-            <p>Always Amber (#C96A2B) on light and dark backgrounds. On the amber background, use rgba(246,241,233,0.6).</p>
+            <p>Always Amber (#C96A2B) on light, cream, and dark backgrounds. On the amber accent background, use rgba(246,241,233,0.6).</p>
         </div>
     </div>
 </div>
 
 <!-- ─── COLORS ────────────────────────────────── -->
 <div class="page">
-    <div class="page-label">02 — Color</div>
+    <div class="page-label">02 - Color</div>
     <h2 class="page-title">Palette</h2>
 
     <div class="color-grid">
@@ -723,7 +843,7 @@
             <div class="swatch-block" style="background:rgba(21,19,14,0.055);border:1px solid #DDD7CC;"></div>
             <div class="swatch-info">
                 <div class="swatch-name">Ink Ghost</div>
-                <div class="swatch-hex">rgba(21,19,14,0.04–0.06)</div>
+                <div class="swatch-hex">rgba(21,19,14,0.04-0.06)</div>
                 <div class="swatch-use">Ambient texture. Used for large ghost letterforms in backgrounds for depth.</div>
             </div>
         </div>
@@ -733,7 +853,7 @@
 
 <!-- ─── FUNCTIONAL COLOR ──────────────────────────── -->
 <div class="page">
-    <div class="page-label">03 — Functional Color</div>
+    <div class="page-label">03 - Functional Color</div>
     <h2 class="page-title">Color That Communicates</h2>
 
     <p style="font-size:17px;font-weight:300;color:var(--text-2);max-width:680px;line-height:1.85;margin-bottom:24px;">
@@ -965,7 +1085,7 @@
 
 <!-- ─── TYPOGRAPHY ─────────────────────────────── -->
 <div class="page">
-    <div class="page-label">04 — Typography</div>
+    <div class="page-label">04 - Typography</div>
     <h2 class="page-title">Type System</h2>
 
     <!-- Cormorant Garamond -->
@@ -1022,7 +1142,7 @@
                 </div>
             </div>
         </div>
-        <div class="type-sample-body">We help founders and senior operators build lasting mindshare on X and LinkedIn — where trust is earned before the sales call. Not campaigns. Not press cycles. The platforms where beliefs form.</div>
+        <div class="type-sample-body">We help founders and senior operators build lasting mindshare on X and LinkedIn - where trust is earned before the sales call. Not campaigns. Not press cycles. The platforms where beliefs form.</div>
         <div class="type-weights">
             <div class="type-weight-item">
                 <span class="type-weight-label">Light 300</span>
@@ -1077,19 +1197,19 @@
                 </tr>
                 <tr>
                     <td>Body</td>
-                    <td>16–17px / 1.85 leading</td>
+                    <td>16-17px / 1.85 leading</td>
                     <td>All body copy</td>
                     <td><span class="scale-preview-body">Platform-native content that travels.</span></td>
                 </tr>
                 <tr>
                     <td>Small</td>
-                    <td>13–14px / 1.7 leading</td>
+                    <td>13-14px / 1.7 leading</td>
                     <td>Card copy, captions</td>
                     <td><span class="scale-preview-small">Involvement compounds into trust.</span></td>
                 </tr>
                 <tr>
                     <td>Label</td>
-                    <td>10–11px / 0.28em tracking</td>
+                    <td>10-11px / 0.28em tracking</td>
                     <td>Section eyebrows, tags</td>
                     <td><span class="scale-preview-label">What We Do</span></td>
                 </tr>
@@ -1100,7 +1220,7 @@
 
 <!-- ─── COMPONENTS ────────────────────────────── -->
 <div class="page">
-    <div class="page-label">05 — Components</div>
+    <div class="page-label">05 - Components</div>
     <h2 class="page-title">UI Elements</h2>
 
     <div class="component-row">
@@ -1149,7 +1269,7 @@
 
 <!-- ─── SPACING ────────────────────────────────── -->
 <div class="page">
-    <div class="page-label">06 — Spacing & Layout</div>
+    <div class="page-label">06 - Spacing & Layout</div>
     <h2 class="page-title">Grid & Rhythm</h2>
 
     <div class="spacing-grid">
@@ -1165,12 +1285,12 @@
         </div>
         <div class="spacing-item">
             <div class="spacing-block" style="height:24px;"></div>
-            <div class="spacing-value">24–32px</div>
+            <div class="spacing-value">24-32px</div>
             <div class="spacing-label">Column gaps. Space between heading and body.</div>
         </div>
         <div class="spacing-item">
             <div class="spacing-block" style="height:48px;"></div>
-            <div class="spacing-value">48–64px</div>
+            <div class="spacing-value">48-64px</div>
             <div class="spacing-label">Card padding. Space between headline and section label.</div>
         </div>
         <div class="spacing-item">
@@ -1185,7 +1305,7 @@
         </div>
         <div class="spacing-item">
             <div class="spacing-block" style="height:120px;"></div>
-            <div class="spacing-value">140–160px</div>
+            <div class="spacing-value">140-160px</div>
             <div class="spacing-label">CTA sections, hero padding. Maximum vertical breathing room.</div>
         </div>
         <div class="spacing-item">
@@ -1235,19 +1355,19 @@
 
 <!-- ─── VOICE ──────────────────────────────────── -->
 <div class="page">
-    <div class="page-label">07 — Voice & Tone</div>
+    <div class="page-label">07 - Voice & Tone</div>
     <h2 class="page-title">How We Speak</h2>
 
     <div class="voice-grid">
         <div class="voice-card is">
             <div class="voice-card-label">We are</div>
             <ul class="voice-items">
-                <li>Precise and specific — never vague or generic</li>
+                <li>Precise and specific - never vague or generic</li>
                 <li>Confident without being arrogant</li>
                 <li>Intellectually curious, not condescending</li>
-                <li>Direct — sentences are short, verbs are strong</li>
-                <li>Platform-native — understands where the audience lives</li>
-                <li>Warm, human, and earned — not polished or over-managed</li>
+                <li>Direct - sentences are short, verbs are strong</li>
+                <li>Platform-native - understands where the audience lives</li>
+                <li>Warm, human, and earned - not polished or over-managed</li>
             </ul>
         </div>
         <div class="voice-card not">
@@ -1257,8 +1377,8 @@
                 <li>Overly formal or stiff</li>
                 <li>Vague about what it actually does</li>
                 <li>Hyperbolic or chest-thumping</li>
-                <li>Passive — never hedges unnecessarily</li>
-                <li>Long-winded — makes the point and moves on</li>
+                <li>Passive - never hedges unnecessarily</li>
+                <li>Long-winded - makes the point and moves on</li>
             </ul>
         </div>
     </div>
