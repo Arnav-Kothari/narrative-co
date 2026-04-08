@@ -58,7 +58,7 @@ export default function ThesisPage() {
       <nav>
         <a href="/" className="logo">The Narrative Company</a>
         <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
-          <a href="mailto:arnav.kothari@thenarrative.company" className="nav-link">Get in touch</a>
+          <a href="mailto:arnav.kothari@thenarrative.company,aadit.sheth@thenarrative.company?subject=An%20upcoming%20moment&body=Hi%20Arnav%20and%20Aadit%2C%0A%0AWe%20have%20a%20moment%20coming%20up.%0A%0AWhat%20it%20is%20(launch%2C%20earnings%2C%20acquisition)%3A%0AWhen%3A%0AWhat%20we%20want%20it%20to%20do%3A%0A%0AThanks%2C%0A" className="nav-link">Get in touch</a>
           <a href="/dashboard" className="nav-login">Log in</a>
         </div>
       </nav>
@@ -211,7 +211,7 @@ export default function ThesisPage() {
           <div className="cta-eyebrow">Limited engagements</div>
           <h2 className="cta-headline">Let&apos;s see if it&apos;s a fit.</h2>
           <p className="cta-sub">We work with a small number of executives at a time. One conversation. No pitch deck. We&apos;ll tell you what we see.</p>
-          <a href="mailto:arnav.kothari@thenarrative.company" className="cta-btn">
+          <a href="mailto:arnav.kothari@thenarrative.company,aadit.sheth@thenarrative.company?subject=An%20upcoming%20moment&body=Hi%20Arnav%20and%20Aadit%2C%0A%0AWe%20have%20a%20moment%20coming%20up.%0A%0AWhat%20it%20is%20(launch%2C%20earnings%2C%20acquisition)%3A%0AWhen%3A%0AWhat%20we%20want%20it%20to%20do%3A%0A%0AThanks%2C%0A" className="cta-btn">
             Start the conversation&nbsp;&rarr;
           </a>
         </div>
