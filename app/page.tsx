@@ -253,7 +253,7 @@ export default function Home() {
         <div className="cta-inner">
           <div className="cta-eyebrow reveal">Working together</div>
           <h2 className="cta-headline reveal">Let&apos;s talk about what&apos;s coming up.</h2>
-          <p className="cta-sub reveal">Got an earnings call, product launch, or acquisition coming up? Let&apos;s make sure it lands. We only work with 4 leaders per quarter.</p>
+          <p className="cta-sub reveal">Got an earnings call, product launch, or acquisition coming up? Let&apos;s make sure it lands. We only work with a handful of companies at a time.</p>
           <a href="mailto:arnav.kothari@thenarrative.company,aadit.sheth@thenarrative.company?subject=An%20upcoming%20moment&body=Hi%20Arnav%20and%20Aadit%2C%0A%0AWe%20have%20a%20moment%20coming%20up.%0A%0AWhat%20it%20is%20(launch%2C%20earnings%2C%20acquisition)%3A%0AWhen%3A%0AWhat%20we%20want%20it%20to%20do%3A%0A%0AThanks%2C%0A" className="cta-btn reveal" id="cta-btn">
             Start the conversation&nbsp;&rarr;
           </a>
