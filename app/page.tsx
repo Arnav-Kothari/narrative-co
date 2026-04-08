@@ -169,7 +169,7 @@ export default function Home() {
             </span>
           </h1>
           <p className="hero-sub">
-            We build and run the social presence for CEOs and senior leaders - turning X and LinkedIn into your most valuable distribution channels.
+            We engineer the narrative and the amplification behind your biggest company moments - launches, earnings calls, acquisitions - on X and LinkedIn.
           </p>
           <div className="hero-ctas">
             <a href="mailto:arnav.kothari@thenarrative.company" className="btn-fill" id="hero-btn">
@@ -213,7 +213,7 @@ export default function Home() {
         <div className="container">
           <div className="shift-left">
             <div className="shift-label reveal">The gap</div>
-            <h2 className="reveal">Most executive social is run by comms. Comms is built to protect, not distribute.</h2>
+            <h2 className="reveal">Most executive social is run by comms.</h2>
           </div>
           <div className="shift-right reveal" style={{ transitionDelay: '0.15s' }}>
             <p className="shift-body">Your comms team is excellent at what they do - managing risk, protecting reputation, keeping messaging tight. But X and LinkedIn aren&apos;t press channels. They&apos;re distribution channels.</p>
@@ -224,91 +224,36 @@ export default function Home() {
       </section>
 
       {/* WHAT WE DO */}
-      <section className="pillars">
-        <div className="pillars-top reveal">
-          <h2>A narrative system for every company moment.</h2>
-          <p>Every company moment becomes a coordinated multi-surface event. Zero paid spend - every impression earned.</p>
-        </div>
-        <div className="pillars-grid stagger" id="cards">
-          <div className="card" data-tilt="">
-            <div className="card-num">01</div>
-            <div className="card-title">Moment Design</div>
-            <p className="card-body">We architect your highest-leverage events into multi-surface narratives designed to cascade, not just broadcast.</p>
-          </div>
-          <div className="card" data-tilt="">
-            <div className="card-num">02</div>
-            <div className="card-title">Orchestrated Amplification</div>
-            <p className="card-body">We engineer quote cascades and timed reshares so one post becomes a coordinated signal across your entire ecosystem.</p>
-          </div>
-          <div className="card" data-tilt="">
-            <div className="card-num">03</div>
-            <div className="card-title">Platform-Native Execution</div>
-            <p className="card-body">Algorithms change weekly. We operate inside X and LinkedIn every day, adapting before the platform rewards shift.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* HOW IT WORKS */}
       <section className="how">
         <div className="how-header reveal">
-          <div className="section-label">How it works</div>
-          <h2>Designed to compound over time.</h2>
+          <div className="section-label">What we do</div>
+          <h2>We engineer your biggest moments to break through.</h2>
         </div>
-        <div className="steps stagger4">
+        <div className="steps stagger">
           <div className="step">
             <div className="step-circle">01</div>
-            <div className="step-title">Audit</div>
-            <p className="step-body">We map your executive presence, your competitors, and where trust is being earned by someone else.</p>
+            <div className="step-title">Diagnose</div>
+            <p className="step-body">Data analytics on every post, every competitor handle, and every conversation in your category. We figure out where attention lives and what your moment has to do to break through.</p>
           </div>
           <div className="step">
             <div className="step-circle">02</div>
-            <div className="step-title">Architect</div>
-            <p className="step-body">Voice calibration, moment calendar, and a coordination playbook across every surface - built around what your company actually does.</p>
+            <div className="step-title">Engineer</div>
+            <p className="step-body">The narrative, the post, the supporting content, the cascade plan. We build the entire moment so it&apos;s ready to ship the day it goes live.</p>
           </div>
           <div className="step">
             <div className="step-circle">03</div>
-            <div className="step-title">Execute</div>
-            <p className="step-body">Live content, real-time engagement, and quote cascade engineering - every moment orchestrated across surfaces.</p>
-          </div>
-          <div className="step">
-            <div className="step-circle">04</div>
-            <div className="step-title">Compound</div>
-            <p className="step-body">We measure reshare depth, conversation quality, and influencer activation rate. Adjusted weekly so every moment builds on the last.</p>
+            <div className="step-title">Amplify</div>
+            <p className="step-body">Internal coordination across your executives, your company handles, and your company-wide announcements - so we can maximize reach organically.</p>
           </div>
         </div>
       </section>
-
-      {/* EXECUTION STRIP */}
-      <div className="exec-strip">
-        <div className="marquee-wrap">
-          <div className="exec-belt">
-            <span>Earnings narratives</span><span className="dot">&middot;</span>
-            <span>Product launch orchestration</span><span className="dot">&middot;</span>
-            <span>C-suite LinkedIn</span><span className="dot">&middot;</span>
-            <span>CEO X threads</span><span className="dot">&middot;</span>
-            <span>Influencer cascade engineering</span><span className="dot">&middot;</span>
-            <span>Corporate handle voice</span><span className="dot">&middot;</span>
-            <span>Quote reshare systems</span><span className="dot">&middot;</span>
-            <span>Algorithm-native formats</span><span className="dot">&middot;</span>
-            {/* duplicate */}
-            <span>Earnings narratives</span><span className="dot">&middot;</span>
-            <span>Product launch orchestration</span><span className="dot">&middot;</span>
-            <span>C-suite LinkedIn</span><span className="dot">&middot;</span>
-            <span>CEO X threads</span><span className="dot">&middot;</span>
-            <span>Influencer cascade engineering</span><span className="dot">&middot;</span>
-            <span>Corporate handle voice</span><span className="dot">&middot;</span>
-            <span>Quote reshare systems</span><span className="dot">&middot;</span>
-            <span>Algorithm-native formats</span><span className="dot">&middot;</span>
-          </div>
-        </div>
-      </div>
 
       {/* CTA */}
       <section className="cta">
         <div className="cta-inner">
-          <div className="cta-eyebrow reveal">Limited engagements</div>
-          <h2 className="cta-headline reveal">Let&apos;s see if it&apos;s a fit.</h2>
-          <p className="cta-sub reveal">We work with a small number of Fortune 500 technology leaders at a time.</p>
+          <div className="cta-eyebrow reveal">Working together</div>
+          <h2 className="cta-headline reveal">Let&apos;s talk about what&apos;s coming up.</h2>
+          <p className="cta-sub reveal">Got an earnings call, product launch, or acquisition coming up? Let&apos;s make sure it lands. We work with a small group of leaders at a time.</p>
           <a href="mailto:arnav.kothari@thenarrative.company" className="cta-btn reveal" id="cta-btn">
             Start the conversation&nbsp;&rarr;
           </a>

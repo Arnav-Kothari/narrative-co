@@ -470,7 +470,7 @@
     max-width: var(--max-w);
     margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     position: relative;
 }
 
@@ -479,10 +479,31 @@
     position: absolute;
     top: 20px;
     left: 20px;
-    right: calc(25% - 20px);
+    right: calc(33.333% - 20px);
     height: 1px;
     background: var(--border);
     z-index: 0;
+}
+
+.how-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-2);
+    margin-top: 18px;
+    max-width: 640px;
+}
+
+.how-result {
+    max-width: var(--max-w);
+    margin: 72px auto 0;
+    padding-top: 36px;
+    border-top: 1px solid var(--border);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(20px, 2.2vw, 28px);
+    line-height: 1.4;
+    color: var(--text);
 }
 
 .step {
@@ -545,6 +566,8 @@
 .cta {
     padding: 80px 52px;
     text-align: center;
+    background: var(--bg-2);
+    border-top: 1px solid var(--border);
 }
 
 .cta-inner {
@@ -666,7 +689,7 @@
 
 /* ─── THESIS ARTICLE ─────────────────────────── */
 .article {
-    padding: 0 52px 100px;
+    padding: 120px 52px 100px;
 }
 
 .article-inner {
@@ -758,8 +781,9 @@
     .pillars-top { flex-direction: column; align-items: flex-start; gap: 12px; }
     .pillars-top p { text-align: left; max-width: 100%; }
     .pillars-grid { grid-template-columns: 1fr; }
-    .steps { grid-template-columns: repeat(2, 1fr); gap: 48px 32px; }
+    .steps { grid-template-columns: 1fr; gap: 48px 32px; }
     .steps::before { display: none; }
+    .how-result { margin-top: 56px; padding-top: 28px; }
 }
 
 @media (max-width: 700px) {
