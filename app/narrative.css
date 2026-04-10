@@ -30,7 +30,7 @@
 /* ─── NAV ──────────────────────────────────── */
 .narrative-page nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 500;
-    padding: 26px 52px;
+    padding: 26px max(52px, calc((100% - var(--max-w)) / 2));
     display: flex; justify-content: space-between; align-items: center;
     background: linear-gradient(to bottom, rgba(246,241,233,0.97) 55%, transparent);
     backdrop-filter: blur(2px);
@@ -111,7 +111,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 130px 52px 88px;
+    padding: 130px max(52px, calc((100% - var(--max-w)) / 2)) 88px;
     overflow: hidden;
 }
 
@@ -255,7 +255,7 @@
 
 /* ─── SHIFT ────────────────────────────────── */
 .shift {
-    padding: 100px 52px;
+    padding: 100px max(52px, calc((100% - var(--max-w)) / 2));
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
 }
@@ -323,7 +323,7 @@
 
 /* ─── WHAT WE DO ───────────────────────────── */
 .pillars {
-    padding: 100px 52px;
+    padding: 100px max(52px, calc((100% - var(--max-w)) / 2));
     background: var(--bg-2);
 }
 
@@ -430,7 +430,7 @@
 
 /* ─── HOW IT WORKS ────────────────────────── */
 .how {
-    padding: 100px 52px;
+    padding: 100px max(52px, calc((100% - var(--max-w)) / 2));
     background: var(--bg);
     border-top: 1px solid var(--border);
 }
@@ -564,7 +564,7 @@
 
 /* ─── CTA ──────────────────────────────────── */
 .cta {
-    padding: 80px 52px;
+    padding: 80px max(52px, calc((100% - var(--max-w)) / 2));
     text-align: center;
     background: var(--bg-2);
     border-top: 1px solid var(--border);
@@ -633,7 +633,7 @@
 
 /* ─── FOOTER ───────────────────────────────── */
 .narrative-page footer {
-    padding: 26px 52px;
+    padding: 26px max(52px, calc((100% - var(--max-w)) / 2));
     border-top: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
@@ -689,7 +689,7 @@
 
 /* ─── THESIS ARTICLE ─────────────────────────── */
 .article {
-    padding: 120px 52px 100px;
+    padding: 120px max(52px, calc((100% - var(--max-w)) / 2)) 100px;
 }
 
 .article-inner {
@@ -799,6 +799,7 @@
     .logo { font-size: 11px; letter-spacing: 0.3em; display: inline-block; }
     .nav-link { font-size: 10px; letter-spacing: 0.15em; }
     .nav-login { font-size: 9px; letter-spacing: 0.15em; padding: 7px 14px; }
+    .hero { padding-top: 100px; }
     .steps { grid-template-columns: 1fr; }
     .narrative-page footer { flex-direction: column; gap: 12px; text-align: center; }
     .hero-ctas { flex-direction: column; align-items: flex-start; gap: 20px; }
