@@ -791,6 +791,11 @@
         padding-left: 24px;
         padding-right: 24px;
     }
+    .narrative-page nav { padding-top: 18px; padding-bottom: 18px; }
+    .narrative-page nav > div { gap: 14px !important; }
+    .logo { font-size: 11px; letter-spacing: 0.3em; }
+    .nav-link { font-size: 10px; letter-spacing: 0.15em; }
+    .nav-login { font-size: 9px; letter-spacing: 0.15em; padding: 7px 14px; }
     .steps { grid-template-columns: 1fr; }
     .narrative-page footer { flex-direction: column; gap: 12px; text-align: center; }
     .hero-ctas { flex-direction: column; align-items: flex-start; gap: 20px; }
