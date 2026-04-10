@@ -791,9 +791,12 @@
         padding-left: 24px;
         padding-right: 24px;
     }
-    .narrative-page nav { padding-top: 18px; padding-bottom: 18px; }
-    .narrative-page nav > div { gap: 14px !important; }
-    .logo { font-size: 11px; letter-spacing: 0.3em; }
+    .narrative-page nav {
+        padding-top: 16px; padding-bottom: 14px;
+        flex-direction: column; align-items: center; gap: 12px;
+    }
+    .narrative-page nav > div { gap: 16px !important; }
+    .logo { font-size: 11px; letter-spacing: 0.3em; display: inline-block; }
     .nav-link { font-size: 10px; letter-spacing: 0.15em; }
     .nav-login { font-size: 9px; letter-spacing: 0.15em; padding: 7px 14px; }
     .steps { grid-template-columns: 1fr; }

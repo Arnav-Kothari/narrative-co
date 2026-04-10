@@ -158,6 +158,7 @@
         .logo-mark {
             position: relative;
             display: inline-block;
+            align-self: flex-start;
             font-family: 'Inter', sans-serif;
             font-weight: 400;
             font-size: 15px;
@@ -255,6 +256,7 @@
         .monogram-mark {
             position: relative;
             display: inline-block;
+            align-self: flex-start;
             font-family: 'Cormorant Garamond', serif;
             font-weight: 500;
             font-style: italic;
@@ -264,14 +266,11 @@
         }
 
         .monogram-mark::before {
-            /* Bar matches the italic N's cap-line (visual top) extent,
-               not the full "N." bbox. Italic serif Ns fan out wide at the
-               bottom but stay narrow at the top where the bar sits. */
             content: '';
             position: absolute;
             top: 0;
-            left: 13%;
-            width: 68.7%;
+            left: 0;
+            right: 0;
             height: 1px;
         }
 
