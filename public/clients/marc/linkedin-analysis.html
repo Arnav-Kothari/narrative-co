@@ -625,27 +625,6 @@
   </div>
 </div>
 
-<!-- TOP POSTS TABLE -->
-<div class="page">
-  <div class="section-label">Full Data</div>
-  <h2 class="section-title">Top 25 Posts</h2>
-  <p>Ranked by impressions. Engagement rate shows how effectively each post converted reach into interaction. The Feb 25, 2026 earnings post is highlighted - #2 by engagements (11,537), #1 by engagement rate (2.89%).</p>
-  <div style="overflow-x: auto;">
-    <table>
-      <thead>
-        <tr>
-          <th style="width: 40px;">#</th>
-          <th>Date</th>
-          <th class="right">Impressions</th>
-          <th class="right">Engagements</th>
-          <th class="right">Eng. Rate</th>
-          <th>Link</th>
-        </tr>
-      </thead>
-      <tbody id="posts-table-body"></tbody>
-    </table>
-  </div>
-</div>
 
 <!-- RECOMMENDATIONS -->
 <div class="page">
@@ -987,29 +966,6 @@ function buildDashboard(data) {
   renderDemo('demo-industries', 'Industries');
   renderDemo('demo-locations', 'Locations');
 
-  // ========== POSTS TABLE ==========
-  const tbody = document.getElementById('posts-table-body');
-  const sorted = [...data.top_posts].sort((a, b) => b.impressions - a.impressions).slice(0, 25);
-  sorted.forEach((p, i) => {
-    const rank = i + 1;
-    const isEarnings = p.date === '2026-02-25';
-    const topClass = rank <= 3 ? ' top' : '';
-    const rowClass = isEarnings ? ' class="highlight"' : '';
-    const rateWidth = Math.min(p.engagement_rate * 35, 100);
-    tbody.innerHTML += `
-      <tr${rowClass}>
-        <td><span class="rank-num${topClass}">${rank}</span></td>
-        <td style="color:var(--text);font-weight:${isEarnings ? '500' : '300'};">${p.display_date}${isEarnings ? ' *' : ''}</td>
-        <td class="right">${p.impressions.toLocaleString()}</td>
-        <td class="right">${p.engagements ? p.engagements.toLocaleString() : '-'}</td>
-        <td class="right">
-          <span class="eng-bar" style="width:${rateWidth}px"></span>
-          ${p.engagement_rate > 0 ? p.engagement_rate.toFixed(2) + '%' : '-'}
-        </td>
-        <td><a href="${p.url}" target="_blank" class="post-link">View</a></td>
-      </tr>
-    `;
-  });
 }
 </script>
 </body>
