@@ -27,6 +27,7 @@ export default async function DashboardPage() {
         { title: 'Competitive Analysis', href: '/clients/marc/analysis.html' },
         { title: '45-Day Pilot Recap', href: '/clients/marc/one-pager.html' },
         { title: 'Post-Pilot Proposal', href: '/clients/marc/post-pilot-proposal.html' },
+        { title: 'LinkedIn Performance Analysis', href: '/clients/marc/linkedin-analysis.html' },
       ],
     },
     {

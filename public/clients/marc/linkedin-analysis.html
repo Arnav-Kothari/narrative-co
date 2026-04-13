@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marc Benioff LinkedIn Analysis - The Narrative Company</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:      #F6F1E9;
+    --bg-2:    #EDE7DB;
+    --text:    #15130E;
+    --text-2:  #6B6157;
+    --accent:  #C96A2B;
+    --accent-dark: #B05A22;
+    --border:  #DDD7CC;
+    --ink:     #15130E;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Page sections */
+  .page {
+    padding: 80px 64px;
+    border-bottom: 1px solid var(--border);
+    max-width: 1160px;
+    margin: 0 auto;
+  }
+
+  .page-label {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 48px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 400;
+  }
+
+  .page-label::before {
+    content: '';
+    display: block;
+    width: 24px; height: 1px;
+    background: var(--accent);
+  }
+
+  .page-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 48px;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+
+  .page-subtitle {
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--text-2);
+    line-height: 1.8;
+    max-width: 680px;
+  }
+
+  /* KPI strip */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    margin-top: 56px;
+  }
+
+  .kpi {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    padding: 28px 24px;
+  }
+
+  .kpi-label {
+    font-size: 10px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--text-2);
+    margin-bottom: 8px;
+  }
+
+  .kpi-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 32px;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .kpi-sub {
+    font-size: 12px;
+    color: var(--text-2);
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+  }
+
+  .kpi-sub .up {
+    color: #5B8C5A;
+    font-weight: 500;
+  }
+
+  /* Section headings */
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 400;
+  }
+
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 24px; height: 1px;
+    background: var(--accent);
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 1.2;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--text-2);
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+
+  p strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* Chart containers */
+  .chart-wrap {
+    border: 1px solid var(--border);
+    background: var(--bg);
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+
+  .chart-wrap canvas {
+    max-height: 380px;
+  }
+
+  .chart-title {
+    font-size: 10px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--text-2);
+    margin-bottom: 20px;
+  }
+
+  /* Spike annotations */
+  .spike-annotations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  .spike-tag {
+    font-size: 11px;
+    font-weight: 300;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    padding: 6px 14px;
+    line-height: 1.4;
+  }
+
+  /* Callout */
+  .callout {
+    border-left: 2px solid var(--accent);
+    background: var(--bg-2);
+    padding: 28px 32px;
+    margin: 24px 0;
+  }
+
+  .callout p {
+    margin-bottom: 0;
+    font-size: 14px;
+  }
+
+  /* Two-col layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-bottom: 24px;
+  }
+
+  /* Insight boxes */
+  .insight-box {
+    border: 1px solid var(--border);
+    background: var(--bg-2);
+    padding: 32px;
+  }
+
+  .insight-box .ilabel {
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .insight-box h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 1.3;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .insight-box p {
+    font-size: 14px;
+    margin-bottom: 0;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-2);
+    text-align: left;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  th.right { text-align: right; }
+
+  td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text-2);
+    font-weight: 300;
+    font-size: 13px;
+  }
+
+  td.right {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .rank-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--text-2);
+  }
+
+  .rank-num.top { color: var(--accent); }
+
+  .post-link {
+    color: var(--text-2);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-size: 12px;
+  }
+
+  .post-link:hover { color: var(--accent); }
+
+  .eng-bar {
+    display: inline-block;
+    height: 3px;
+    background: var(--accent);
+    margin-right: 8px;
+    vertical-align: middle;
+    opacity: 0.4;
+  }
+
+  /* Highlight row for the earnings post */
+  tr.highlight td {
+    background: rgba(201,106,43,0.06);
+    color: var(--text);
+    font-weight: 400;
+  }
+
+  /* Demographics */
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-bottom: 24px;
+  }
+
+  .demo-card {
+    border: 1px solid var(--border);
+    background: var(--bg-2);
+    padding: 24px;
+  }
+
+  .demo-card h4 {
+    font-size: 10px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--text-2);
+    margin-bottom: 16px;
+  }
+
+  .demo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .demo-item:last-child { border-bottom: none; }
+
+  .demo-item .dlabel {
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--text);
+  }
+
+  .demo-item .pct {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Recommendations */
+  .rec-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .rec-list li {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--text-2);
+    line-height: 1.8;
+  }
+
+  .rec-list li:last-child { border-bottom: none; }
+
+  .rec-list li strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .rec-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    padding: 4px 14px;
+    margin-right: 10px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .rec-tag.do-more {
+    color: #5B8C5A;
+    border: 1px solid rgba(91,140,90,0.25);
+    background: rgba(91,140,90,0.06);
+  }
+
+  .rec-tag.optimize {
+    color: var(--accent);
+    border: 1px solid rgba(201,106,43,0.25);
+    background: rgba(201,106,43,0.06);
+  }
+
+  .rec-tag.test {
+    color: #5B7F95;
+    border: 1px solid rgba(91,127,149,0.25);
+    background: rgba(91,127,149,0.06);
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+  }
+
+  @media (max-width: 700px) {
+    .page { padding: 48px 24px; }
+    .page-title { font-size: 36px; }
+    .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .demo-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="page" style="padding-top: 64px; padding-bottom: 64px;">
+  <div class="page-label">LinkedIn Performance Analysis</div>
+  <h1 class="page-title" style="font-size: 56px; margin-bottom: 16px;">Marc Benioff</h1>
+  <p class="page-subtitle" style="margin-bottom: 0;">
+    <strong>The Narrative Company</strong> - Prepared for NTIA / Salesforce Communications<br>
+    Oct 29, 2024 - Apr 8, 2026 (527 days)
+  </p>
+
+  <div class="kpi-strip">
+    <div class="kpi">
+      <div class="kpi-label">Total Followers</div>
+      <div class="kpi-value">246,116</div>
+      <div class="kpi-sub"><span class="up">+221,315</span> (892%)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Total Impressions</div>
+      <div class="kpi-value">17.8M</div>
+      <div class="kpi-sub">33.8K avg/day</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Members Reached</div>
+      <div class="kpi-value">2.06M</div>
+      <div class="kpi-sub">Unique individuals</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Avg Engagement Rate</div>
+      <div class="kpi-value">1.59%</div>
+      <div class="kpi-sub">Mar 2025 - Apr 2026</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">300K+ Imp Posts</div>
+      <div class="kpi-value" id="top-posts-count">-</div>
+      <div class="kpi-sub">Out of ~65 tracked</div>
+    </div>
+  </div>
+</div>
+
+<!-- INSIGHT 1: Follower Growth -->
+<div class="page">
+  <div class="section-label">Insight 1</div>
+  <h2 class="section-title">Follower Growth: 10x in 18 Months, Driven by Viral Moments</h2>
+  <p>
+    Marc's LinkedIn grew from ~25K to 246K followers - nearly a 10x increase. Growth was not linear. A handful of high-reach posts drove the majority of follower acquisition, with 5 days accounting for over 10% of all new followers.
+  </p>
+
+  <div class="chart-wrap">
+    <div class="chart-title">Cumulative followers over time</div>
+    <canvas id="followerGrowthChart"></canvas>
+    <div class="spike-annotations">
+      <span class="spike-tag">Oct 29-30 '24: +13.4K - First viral post (1.9M imp)</span>
+      <span class="spike-tag">Dec 3 '24: +2.0K - Viral post (538K imp)</span>
+      <span class="spike-tag">Feb 5-6 '25: +1.7K - Double post day (1M+ combined)</span>
+      <span class="spike-tag">May 27 '25: +1.6K - Top engagement post (842K imp)</span>
+      <span class="spike-tag">Mar 14-15 '26: +6.7K - External event</span>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p>
+      <strong>The pattern:</strong> Marc's follower base grows in bursts tied to content that breaks out of the Salesforce ecosystem. Months with a viral post see 13K-16K new followers vs. a baseline of 8K-10K in quieter months. The March 2026 spike (+5,722 in a single day) came from an external source - likely a media appearance or event coverage - showing that off-platform moments compound on LinkedIn.
+    </p>
+  </div>
+</div>
+
+<!-- INSIGHT 2: Reach vs Engagement -->
+<div class="page">
+  <div class="section-label">Insight 2</div>
+  <h2 class="section-title">High-Reach vs. High-Engagement Posts Are Different</h2>
+  <p>
+    The posts that get the most impressions and the posts that get the best engagement rate are two different groups. Understanding this distinction is key to deciding what each post should optimize for.
+  </p>
+
+  <div class="two-col">
+    <div class="chart-wrap">
+      <div class="chart-title">Top 15 by impressions</div>
+      <canvas id="topImpChart"></canvas>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">Top 15 by engagement rate (min 100K imp)</div>
+      <canvas id="topEngRateChart"></canvas>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="insight-box">
+      <div class="ilabel">Reach Posts</div>
+      <h3>Announcement-style posts drive impressions</h3>
+      <p>
+        The #1 impression post (Oct 29, 2024 - <strong>1.93M impressions</strong>) dwarfs everything else by 2x+. Top reach posts cluster around <strong>product launches, earnings moments, and industry hot-takes.</strong> These reach far beyond Marc's followers but generate lower engagement rates (often under 1%).
+      </p>
+    </div>
+    <div class="insight-box">
+      <div class="ilabel">Engagement Posts</div>
+      <h3>Personal, values-driven posts drive deeper interaction</h3>
+      <p>
+        The highest engagement rates (<strong>2.4-2.9%</strong>) come from posts that feel personal, opinionated, or culturally relevant. The Feb 25 earnings post hit <strong>2.89%</strong> - the best rate of any major post - with 11,537 engagements and 400K impressions. The audience leans in when Marc shares a perspective.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- INSIGHT 3: Consistency -->
+<div class="page">
+  <div class="section-label">Insight 3</div>
+  <h2 class="section-title">Posting Consistency Matters More Than Any Single Post</h2>
+  <p>
+    The months with the strongest overall performance aren't always the ones with a single viral hit. They're the ones with consistent posting cadence that keeps the baseline high.
+  </p>
+
+  <div class="chart-wrap">
+    <div class="chart-title">Monthly impressions, new followers, and engagement rate</div>
+    <canvas id="monthlyChart"></canvas>
+  </div>
+
+  <div class="callout">
+    <p>
+      <strong>Key finding:</strong> When impressions dropped below 700K in a month (Sep 2025: 487K, Jan 2026: 508K), follower growth dropped to its lowest levels (8K and 7.5K). But even months without a breakout post maintained strong growth when the cadence stayed high - October 2025 hit 1.19M impressions and 14.9K new followers through <strong>multiple solid-performing posts</strong> rather than one viral moment. The engagement rate has also trended upward - from 1.28% in March 2025 to a peak of <strong>2.27% in Feb 2026</strong>.
+    </p>
+  </div>
+</div>
+
+<!-- INSIGHT 4: Engagement Quality -->
+<div class="page">
+  <div class="section-label">Insight 4</div>
+  <h2 class="section-title">Engagement Quality Is Rising - The Audience Is Maturing</h2>
+  <p>
+    Since March 2025, the engagement rate has steadily climbed. The followers Marc is gaining are increasingly active participants, and the content strategy is resonating more deeply.
+  </p>
+
+  <div class="chart-wrap">
+    <div class="chart-title">7-day rolling engagement rate (Mar 2025 - Apr 2026)</div>
+    <canvas id="engRateChart"></canvas>
+  </div>
+
+  <div class="two-col">
+    <div class="insight-box">
+      <div class="ilabel">Early Period (Mar-Jun 2025)</div>
+      <h3>Building the base</h3>
+      <p>
+        Average engagement rate hovered around <strong>1.4-1.5%</strong>. The audience was new and still forming. Spikes came from standout posts but quickly returned to baseline.
+      </p>
+    </div>
+    <div class="insight-box">
+      <div class="ilabel">Recent Period (Nov 2025 - Mar 2026)</div>
+      <h3>Deepening connection</h3>
+      <p>
+        Engagement rate climbed to <strong>1.9-2.3%</strong> on average, with Feb 2026 hitting 2.27%. This is above the LinkedIn benchmark of ~2% for executive accounts. The follower base has shifted from passive observers to engaged professionals.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- INSIGHT 5: Audience -->
+<div class="page">
+  <div class="section-label">Insight 5</div>
+  <h2 class="section-title">The Audience Is Exactly Who We Want</h2>
+  <p>
+    Marc's LinkedIn audience is heavily skewed toward decision-makers in tech. This is the right audience for Salesforce's brand, Agentforce positioning, and Marc's personal narrative as a thought leader.
+  </p>
+
+  <div class="demo-grid">
+    <div class="demo-card">
+      <h4>Seniority</h4>
+      <div id="demo-seniority"></div>
+    </div>
+    <div class="demo-card">
+      <h4>Company Size</h4>
+      <div id="demo-company-size"></div>
+    </div>
+    <div class="demo-card">
+      <h4>Top Companies</h4>
+      <div id="demo-companies"></div>
+    </div>
+    <div class="demo-card">
+      <h4>Job Titles</h4>
+      <div id="demo-job-titles"></div>
+    </div>
+    <div class="demo-card">
+      <h4>Industries</h4>
+      <div id="demo-industries"></div>
+    </div>
+    <div class="demo-card">
+      <h4>Locations</h4>
+      <div id="demo-locations"></div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p>
+      <strong>Audience highlights:</strong> 40% of Marc's followers are Senior-level, 12% are Directors, and 6% are CXOs - meaning nearly 60% hold meaningful decision-making power. <strong>12.2% work at Salesforce</strong> (the single largest company segment), followed by Accenture, Microsoft, IBM, and Oracle - all key ecosystem partners and enterprise buyers. 35% are at companies with 10,001+ employees. The top locations (SF Bay Area, NYC, Bengaluru, Hyderabad, London) perfectly align with Salesforce's key markets.
+    </p>
+  </div>
+</div>
+
+<!-- TOP POSTS TABLE -->
+<div class="page">
+  <div class="section-label">Full Data</div>
+  <h2 class="section-title">Top 25 Posts</h2>
+  <p>Ranked by impressions. Engagement rate shows how effectively each post converted reach into interaction. The Feb 25, 2026 earnings post is highlighted - #2 by engagements (11,537), #1 by engagement rate (2.89%).</p>
+  <div style="overflow-x: auto;">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 40px;">#</th>
+          <th>Date</th>
+          <th class="right">Impressions</th>
+          <th class="right">Engagements</th>
+          <th class="right">Eng. Rate</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+      <tbody id="posts-table-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- RECOMMENDATIONS -->
+<div class="page">
+  <div class="section-label">Going Forward</div>
+  <h2 class="section-title">Recommendations</h2>
+  <p>Based on 18 months of data, here's what the numbers tell us about what to do more of, optimize, and test.</p>
+
+  <ul class="rec-list">
+    <li>
+      <span class="rec-tag do-more">Do More</span>
+      <strong>Maintain a 2-3x/week posting cadence as a floor.</strong> The data shows clear drops in both impressions and follower growth during low-activity months. Even without a viral post, consistent presence keeps the baseline at 10K+ new followers/month.
+    </li>
+    <li>
+      <span class="rec-tag do-more">Do More</span>
+      <strong>Lean into opinion and values-driven posts.</strong> The highest engagement rates (2.4-2.9%) come from posts where Marc takes a clear stance or shares something personal. These build the kind of audience loyalty that compounds over time.
+    </li>
+    <li>
+      <span class="rec-tag optimize">Optimize</span>
+      <strong>Pair every big announcement with a personal follow-up.</strong> Launch/announcement posts drive massive reach but low engagement. A day-later follow-up with Marc's personal take on the same topic would capture that influx of new viewers and convert them to followers.
+    </li>
+    <li>
+      <span class="rec-tag optimize">Optimize</span>
+      <strong>Cross-promote external appearances back to LinkedIn.</strong> The March 2026 spike (+5,722 followers in a day from an off-platform event) shows that media appearances and live events can drive LinkedIn growth when there's a clear path back to the profile. Every TV hit, podcast, or keynote should be followed by a LinkedIn post within 24 hours.
+    </li>
+    <li>
+      <span class="rec-tag test">Test</span>
+      <strong>Experiment with longer-form narrative posts.</strong> The engagement rate has been climbing, suggesting the audience is ready for more depth. Testing 800-1200 word posts that tell a story - about Agentforce customers, AI trends, or leadership lessons - could push engagement above the current 2.3% ceiling.
+    </li>
+  </ul>
+</div>
+
+<script>
+fetch('data/linkedin_data.json')
+  .then(r => r.json())
+  .then(data => buildDashboard(data));
+
+function buildDashboard(data) {
+  // Chart defaults for brand palette
+  Chart.defaults.color = '#6B6157';
+  Chart.defaults.borderColor = '#DDD7CC';
+  Chart.defaults.font.family = 'Inter, sans-serif';
+  Chart.defaults.font.size = 11;
+  Chart.defaults.font.weight = 300;
+
+  const ink = '#15130E';
+  const accent = '#C96A2B';
+  const muted = '#6B6157';
+  const border = '#DDD7CC';
+  const sage = '#5B8C5A';
+  const gridColor = '#EDE7DB';
+
+  // KPI
+  document.getElementById('top-posts-count').textContent =
+    data.top_posts.filter(p => p.impressions >= 300000).length;
+
+  // Tooltip style
+  const tooltipStyle = {
+    backgroundColor: ink,
+    titleColor: '#F6F1E9',
+    bodyColor: '#DDD7CC',
+    borderColor: '#333',
+    borderWidth: 0,
+    titleFont: { family: 'Inter', weight: 400, size: 12 },
+    bodyFont: { family: 'Inter', weight: 300, size: 12 },
+    padding: 12,
+    cornerRadius: 0
+  };
+
+  // ========== CHART 1: Follower Growth ==========
+  new Chart(document.getElementById('followerGrowthChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: data.followers_timeline.map(f => f.date),
+      datasets: [{
+        label: 'Total Followers',
+        data: data.followers_timeline.map(f => f.cumulative),
+        borderColor: ink,
+        backgroundColor: 'rgba(21,19,14,0.06)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        borderWidth: 1.5,
+      }, {
+        label: 'Daily New Followers',
+        data: data.followers_timeline.map(f => f.new),
+        borderColor: 'rgba(91,140,90,0.35)',
+        backgroundColor: 'rgba(91,140,90,0.06)',
+        fill: true,
+        tension: 0.1,
+        pointRadius: 0,
+        borderWidth: 1,
+        yAxisID: 'y1'
+      }]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: 'month', displayFormats: { month: 'MMM yyyy' } },
+          grid: { display: false }
+        },
+        y: {
+          position: 'left',
+          title: { display: true, text: 'Total Followers' },
+          ticks: { callback: v => (v/1000).toFixed(0) + 'K' },
+          grid: { color: gridColor }
+        },
+        y1: {
+          position: 'right',
+          title: { display: true, text: 'Daily New' },
+          grid: { drawOnChartArea: false },
+          ticks: { callback: v => v.toLocaleString() }
+        }
+      },
+      plugins: {
+        tooltip: {
+          ...tooltipStyle,
+          callbacks: {
+            label: ctx => ctx.datasetIndex === 0
+              ? 'Total: ' + ctx.parsed.y.toLocaleString()
+              : 'New: +' + ctx.parsed.y.toLocaleString()
+          }
+        }
+      }
+    }
+  });
+
+  // ========== CHART 2a: Top by Impressions ==========
+  const topImp = data.top_posts.slice(0, 15);
+  new Chart(document.getElementById('topImpChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: topImp.map(p => p.display_date),
+      datasets: [{
+        data: topImp.map(p => p.impressions),
+        backgroundColor: topImp.map((p, i) => {
+          // Highlight the Feb 25 earnings post
+          if (p.date === '2026-02-25') return 'rgba(201,106,43,0.6)';
+          return i < 3 ? 'rgba(21,19,14,0.5)' : 'rgba(21,19,14,0.15)';
+        }),
+        borderRadius: 0,
+        barPercentage: 0.7
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      scales: {
+        x: { ticks: { callback: v => (v/1000000).toFixed(1) + 'M' }, grid: { color: gridColor } },
+        y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { ...tooltipStyle, callbacks: { label: ctx => ctx.parsed.x.toLocaleString() + ' impressions' } }
+      }
+    }
+  });
+
+  // ========== CHART 2b: Top by Engagement Rate ==========
+  const ratedPosts = data.top_posts
+    .filter(p => p.impressions >= 100000 && p.engagements > 0)
+    .sort((a, b) => b.engagement_rate - a.engagement_rate)
+    .slice(0, 15);
+
+  new Chart(document.getElementById('topEngRateChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ratedPosts.map(p => p.display_date),
+      datasets: [{
+        data: ratedPosts.map(p => p.engagement_rate),
+        backgroundColor: ratedPosts.map((p, i) => {
+          if (p.date === '2026-02-25') return 'rgba(201,106,43,0.6)';
+          return i < 3 ? 'rgba(91,140,90,0.5)' : 'rgba(91,140,90,0.15)';
+        }),
+        borderRadius: 0,
+        barPercentage: 0.7
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      scales: {
+        x: { ticks: { callback: v => v + '%' }, grid: { color: gridColor } },
+        y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: { ...tooltipStyle, callbacks: { label: ctx => ctx.parsed.x.toFixed(2) + '% engagement rate' } }
+      }
+    }
+  });
+
+  // ========== CHART 3: Monthly ==========
+  const monthlyFull = data.monthly.filter(m => m.month !== '2024-10' && m.month !== '2026-04');
+
+  new Chart(document.getElementById('monthlyChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: monthlyFull.map(m => {
+        const [y, mo] = m.month.split('-');
+        return new Date(y, parseInt(mo)-1).toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+      }),
+      datasets: [{
+        label: 'Impressions',
+        data: monthlyFull.map(m => m.impressions),
+        backgroundColor: 'rgba(21,19,14,0.1)',
+        borderRadius: 0,
+        yAxisID: 'y',
+        order: 2
+      }, {
+        label: 'New Followers',
+        data: monthlyFull.map(m => m.new_followers),
+        type: 'line',
+        borderColor: sage,
+        backgroundColor: 'transparent',
+        tension: 0.3,
+        pointRadius: 3,
+        pointBackgroundColor: sage,
+        borderWidth: 1.5,
+        yAxisID: 'y1',
+        order: 1
+      }, {
+        label: 'Engagement Rate %',
+        data: monthlyFull.map(m => m.engagement_rate),
+        type: 'line',
+        borderColor: accent,
+        backgroundColor: 'transparent',
+        tension: 0.3,
+        pointRadius: 3,
+        pointBackgroundColor: accent,
+        borderWidth: 1.5,
+        borderDash: [5, 3],
+        yAxisID: 'y2',
+        order: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { grid: { display: false } },
+        y: {
+          position: 'left',
+          title: { display: true, text: 'Impressions' },
+          ticks: { callback: v => (v/1000000).toFixed(1) + 'M' },
+          grid: { color: gridColor }
+        },
+        y1: {
+          position: 'right',
+          title: { display: true, text: 'New Followers', color: sage },
+          grid: { drawOnChartArea: false },
+          ticks: { callback: v => (v/1000).toFixed(0) + 'K', color: sage }
+        },
+        y2: {
+          position: 'right',
+          title: { display: true, text: 'Eng Rate', color: accent },
+          grid: { drawOnChartArea: false },
+          ticks: { callback: v => v + '%', color: accent },
+          min: 0, max: 3
+        }
+      },
+      plugins: {
+        tooltip: {
+          ...tooltipStyle,
+          callbacks: {
+            label: ctx => {
+              if (ctx.datasetIndex === 0) return 'Impressions: ' + ctx.parsed.y.toLocaleString();
+              if (ctx.datasetIndex === 1) return 'New Followers: ' + ctx.parsed.y.toLocaleString();
+              return 'Eng Rate: ' + ctx.parsed.y + '%';
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // ========== CHART 4: Engagement Rate ==========
+  const engStart = data.engagement_timeline.findIndex(e => e.engagements > 0);
+  new Chart(document.getElementById('engRateChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: data.engagement_timeline.slice(engStart).map(e => e.date),
+      datasets: [{
+        label: '7-Day Rolling Engagement Rate',
+        data: data.weekly_engagement_rate.slice(engStart),
+        borderColor: ink,
+        backgroundColor: 'rgba(21,19,14,0.04)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHoverRadius: 3,
+        borderWidth: 1.5
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: 'month', displayFormats: { month: 'MMM yyyy' } },
+          grid: { display: false }
+        },
+        y: {
+          title: { display: true, text: 'Engagement Rate %' },
+          ticks: { callback: v => v + '%' },
+          min: 0,
+          grid: { color: gridColor }
+        }
+      },
+      plugins: {
+        tooltip: { ...tooltipStyle, callbacks: { label: ctx => ctx.parsed.y.toFixed(2) + '% (7-day avg)' } }
+      }
+    }
+  });
+
+  // ========== DEMOGRAPHICS ==========
+  function renderDemo(id, category) {
+    const items = data.demographics[category] || [];
+    document.getElementById(id).innerHTML = items.map(item =>
+      `<div class="demo-item">
+        <span class="dlabel">${item.value}</span>
+        <span class="pct">${item.percentage > 0 ? item.percentage + '%' : '< 1%'}</span>
+      </div>`
+    ).join('');
+  }
+  renderDemo('demo-seniority', 'Seniority');
+  renderDemo('demo-company-size', 'Company size');
+  renderDemo('demo-companies', 'Companies');
+  renderDemo('demo-job-titles', 'Job titles');
+  renderDemo('demo-industries', 'Industries');
+  renderDemo('demo-locations', 'Locations');
+
+  // ========== POSTS TABLE ==========
+  const tbody = document.getElementById('posts-table-body');
+  const sorted = [...data.top_posts].sort((a, b) => b.impressions - a.impressions).slice(0, 25);
+  sorted.forEach((p, i) => {
+    const rank = i + 1;
+    const isEarnings = p.date === '2026-02-25';
+    const topClass = rank <= 3 ? ' top' : '';
+    const rowClass = isEarnings ? ' class="highlight"' : '';
+    const rateWidth = Math.min(p.engagement_rate * 35, 100);
+    tbody.innerHTML += `
+      <tr${rowClass}>
+        <td><span class="rank-num${topClass}">${rank}</span></td>
+        <td style="color:var(--text);font-weight:${isEarnings ? '500' : '300'};">${p.display_date}${isEarnings ? ' *' : ''}</td>
+        <td class="right">${p.impressions.toLocaleString()}</td>
+        <td class="right">${p.engagements ? p.engagements.toLocaleString() : '-'}</td>
+        <td class="right">
+          <span class="eng-bar" style="width:${rateWidth}px"></span>
+          ${p.engagement_rate > 0 ? p.engagement_rate.toFixed(2) + '%' : '-'}
+        </td>
+        <td><a href="${p.url}" target="_blank" class="post-link">View</a></td>
+      </tr>
+    `;
+  });
+}
+</script>
+</body>
+</html>
