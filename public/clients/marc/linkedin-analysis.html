@@ -798,11 +798,14 @@ function buildDashboard(data) {
       responsive: true,
       scales: {
         x: { ticks: { callback: v => (v/1000000).toFixed(1) + 'M' }, grid: { color: gridColor } },
-        y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        y: { display: false }
       },
       plugins: {
         legend: { display: false },
-        tooltip: { ...tooltipStyle, callbacks: { label: ctx => ctx.parsed.x.toLocaleString() + ' impressions' } }
+        tooltip: { ...tooltipStyle, callbacks: {
+          title: ctx => topImp[ctx[0].dataIndex].display_date,
+          label: ctx => ctx.parsed.x.toLocaleString() + ' impressions'
+        } }
       }
     }
   });
@@ -832,12 +835,14 @@ function buildDashboard(data) {
       responsive: true,
       scales: {
         x: { ticks: { callback: v => v + '%' }, grid: { color: gridColor } },
-        y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        y: { display: false }
       },
       plugins: {
         legend: { display: false },
-        tooltip: { ...tooltipStyle, callbacks: { label: ctx => ctx.parsed.x.toFixed(2) + '% engagement rate' } }
-      }
+        tooltip: { ...tooltipStyle, callbacks: {
+          title: ctx => ratedPosts[ctx[0].dataIndex].display_date,
+          label: ctx => ctx.parsed.x.toFixed(2) + '% engagement rate'
+        } }
     }
   });
 
