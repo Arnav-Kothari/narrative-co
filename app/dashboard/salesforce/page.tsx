@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { DEFAULT_RUBRIC } from "../../api/_lib/rubric";
 import "./demo.css";
 
 type Post = {
@@ -14,8 +15,6 @@ type Post = {
 
 type Score = { id: string; score: number; rationale: string; flags: string[] };
 type Angle = { angle: string; reply: string };
-
-const DEFAULT_RUBRIC_PLACEHOLDER = `Edit the scoring rubric here. The default is loaded server-side and reflects Salesforce's community engagement tenets. Paste a custom rubric to override.`;
 
 const LIVE_POLL_MS = 60_000;
 const NOW_TICK_MS = 15_000;
@@ -44,7 +43,7 @@ export default function SalesforceDemoPage() {
   const [threshold, setThreshold] = useState(70);
   const [floor, setFloor] = useState(10);
   const [rubricOpen, setRubricOpen] = useState(false);
-  const [rubric, setRubric] = useState("");
+  const [rubric, setRubric] = useState(DEFAULT_RUBRIC);
   const [mode, setMode] = useState<"live" | "demo">("demo");
   const [source, setSource] = useState<string | null>(null);
   const [lastSync, setLastSync] = useState<Date | null>(null);
@@ -261,12 +260,12 @@ export default function SalesforceDemoPage() {
               <div className="sf-stat-value">Live</div>
               <div className="sf-stat-note">
                 <a
-                  href="https://x.com/i/lists/144748104"
+                  href="https://x.com/i/lists/2044646327892779507"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ color: "var(--accent)", textDecoration: "none" }}
                 >
-                  a16z partners ↗
+                  Narrative 10K ↗
                 </a>
               </div>
             </div>
@@ -354,7 +353,6 @@ export default function SalesforceDemoPage() {
               style={{ marginTop: 16 }}
               value={rubric}
               onChange={(e) => setRubric(e.target.value)}
-              placeholder={DEFAULT_RUBRIC_PLACEHOLDER}
             />
           )}
         </div>

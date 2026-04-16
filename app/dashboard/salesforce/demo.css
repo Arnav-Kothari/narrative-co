@@ -272,15 +272,16 @@
 
 .sf-rubric {
   width: 100%;
-  min-height: 240px;
+  min-height: 480px;
   background: var(--bg);
   border: 1px solid var(--border);
-  padding: 14px;
+  padding: 16px;
   font-family: ui-monospace, Menlo, monospace;
   font-size: 12px;
-  line-height: 1.55;
+  line-height: 1.6;
   color: var(--text);
   resize: vertical;
+  white-space: pre-wrap;
 }
 
 .sf-post {
