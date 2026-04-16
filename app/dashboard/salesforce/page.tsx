@@ -204,10 +204,16 @@ export default function SalesforceDemoPage() {
       const r = await fetch(`/api/x-posts?${qs.toString()}`);
       const data = await r.json();
       const incoming: Post[] = data.posts ?? [];
+      const incomingScores: Record<string, Score> | undefined = data.scores;
       setSource(data.source ?? null);
       if (data.error) setErr(`X API: ${data.error} - using seed posts.`);
       else if (data.warning) setErr(data.warning);
       else setErr(null);
+
+      // If server returned pre-computed scores (cache mode), apply them.
+      if (incomingScores && Object.keys(incomingScores).length > 0) {
+        setScores((prev) => ({ ...prev, ...incomingScores }));
+      }
 
       const cutoffMs = Date.now() - 48 * 3600 * 1000;
       if (!cache.initialized) {

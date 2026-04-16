@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { TwitterApi } from "twitter-api-v2";
 import { SEED_POSTS } from "../_lib/seedPosts";
+import { hasStorage, readCache, pruneCache, writeCache } from "../_lib/storage";
 
 export const runtime = "nodejs";
 
@@ -67,6 +68,31 @@ export async function GET(req: Request) {
 
   if (mode === "demo") {
     return NextResponse.json({ posts: SEED_POSTS, source: "seed" });
+  }
+
+  // If KV storage is configured, read directly from it - cron keeps it fresh.
+  if (hasStorage()) {
+    const cache = await readCache();
+    if (cache) {
+      const pruned = pruneCache(cache);
+      // If pruning removed posts, persist the trimmed state back.
+      if (pruned.posts.length !== cache.posts.length) {
+        await writeCache(pruned);
+      }
+      return NextResponse.json({
+        posts: pruned.posts,
+        scores: pruned.scores,
+        source: "cache",
+        last_update: pruned.last_update,
+      });
+    }
+    // No cache yet - return empty. The cron will populate on next tick.
+    return NextResponse.json({
+      posts: [],
+      scores: {},
+      source: "cache-empty",
+      warning: "Background poller hasn't populated the cache yet - wait a few minutes.",
+    });
   }
 
   const token = process.env.X_BEARER_TOKEN;
