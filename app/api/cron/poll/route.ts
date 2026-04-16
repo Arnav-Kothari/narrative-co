@@ -18,6 +18,8 @@ export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
 const SCORE_CONCURRENCY = 15;
+const MAX_SCORE_PER_RUN = 40; // stay under Cloudflare's ~100s gateway timeout
+const INITIAL_HOURS = 12; // first run only pulls 12h; subsequent runs catch up via since_id
 
 async function scoreBatch(posts: XPost[], client: Anthropic): Promise<StoredScore[]> {
   async function scoreOne(p: XPost): Promise<StoredScore> {
@@ -96,8 +98,17 @@ async function runPoll() {
         )
       : undefined;
 
-  const fresh = await fetchListPosts({ listId, sinceId: newestId });
-  const toScore = fresh.filter((p) => !existing.scores[p.id]);
+  const fresh = await fetchListPosts({
+    listId,
+    sinceId: newestId,
+    hoursBack: newestId ? 48 : INITIAL_HOURS,
+  });
+
+  // Merge posts first (including unscored ones from previous partial runs)
+  const mergedPosts = mergePosts(existing.posts, fresh);
+  // Score anything without a score yet, capped per run
+  const unscored = mergedPosts.filter((p) => !existing.scores[p.id]);
+  const toScore = unscored.slice(0, MAX_SCORE_PER_RUN);
 
   const client = new Anthropic({ apiKey: anthropicKey });
   const newScores = toScore.length > 0 ? await scoreBatch(toScore, client) : [];
@@ -106,7 +117,7 @@ async function runPoll() {
   for (const s of newScores) mergedScores[s.id] = s;
 
   const mergedState: CacheState = {
-    posts: mergePosts(existing.posts, fresh),
+    posts: mergedPosts,
     scores: mergedScores,
     last_update: new Date().toISOString(),
   };
@@ -116,6 +127,7 @@ async function runPoll() {
   return {
     fetched: fresh.length,
     scored: newScores.length,
+    remaining_unscored: Math.max(0, unscored.length - toScore.length),
     total_posts: pruned.posts.length,
     last_update: pruned.last_update,
   };
