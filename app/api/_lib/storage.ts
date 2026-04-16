@@ -1,4 +1,4 @@
-import { Redis } from "@upstash/redis";
+import Redis from "ioredis";
 import type { XPost } from "../x-posts/route";
 
 export type StoredScore = {
@@ -17,24 +17,33 @@ export type CacheState = {
 const KEY = "sf:cache:v1";
 const WINDOW_HOURS = 48;
 
+// Serverless warning: ioredis creates a TCP connection per container.
+// For Vercel, we cache the client on the module to reuse across requests
+// within the same container lifecycle.
+let cached: Redis | null = null;
 function client(): Redis | null {
-  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return null;
-  return new Redis({ url, token });
+  if (cached) return cached;
+  const url = process.env.REDIS_URL;
+  if (!url) return null;
+  cached = new Redis(url, {
+    lazyConnect: true,
+    maxRetriesPerRequest: 2,
+    enableReadyCheck: false,
+  });
+  return cached;
 }
 
 export function hasStorage(): boolean {
-  return client() !== null;
+  return !!process.env.REDIS_URL;
 }
 
 export async function readCache(): Promise<CacheState | null> {
   const r = client();
   if (!r) return null;
   try {
-    const raw = await r.get<CacheState | string>(KEY);
+    const raw = await r.get(KEY);
     if (!raw) return null;
-    return typeof raw === "string" ? (JSON.parse(raw) as CacheState) : raw;
+    return JSON.parse(raw) as CacheState;
   } catch {
     return null;
   }
