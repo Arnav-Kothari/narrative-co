@@ -17,9 +17,8 @@ type Angle = { angle: string; reply: string };
 
 const DEFAULT_RUBRIC_PLACEHOLDER = `Edit the scoring rubric here. The default is loaded server-side and reflects Salesforce's community engagement tenets. Paste a custom rubric to override.`;
 
-const DEMO_REVEAL_MS = 8000;
 const LIVE_POLL_MS = 60_000;
-const DEMO_INITIAL_VISIBLE = 3;
+const NOW_TICK_MS = 15_000;
 
 function timeAgo(date: Date | null, now: Date): string {
   if (!date) return "-";
@@ -28,7 +27,12 @@ function timeAgo(date: Date | null, now: Date): string {
   const min = Math.floor(sec / 60);
   if (min < 60) return `${min}m ago`;
   const hr = Math.floor(min / 60);
-  return `${hr}h ago`;
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `${day}d ago`;
+  const mo = Math.floor(day / 30);
+  if (mo < 12) return `${mo}mo ago`;
+  return `${Math.floor(mo / 12)}y ago`;
 }
 
 export default function SalesforceDemoPage() {
@@ -38,6 +42,7 @@ export default function SalesforceDemoPage() {
   const [angles, setAngles] = useState<Record<string, Angle[]>>({});
 
   const [threshold, setThreshold] = useState(70);
+  const [floor, setFloor] = useState(10);
   const [rubricOpen, setRubricOpen] = useState(false);
   const [rubric, setRubric] = useState("");
   const [mode, setMode] = useState<"live" | "demo">("demo");
@@ -58,15 +63,24 @@ export default function SalesforceDemoPage() {
 
   const visiblePosts = useMemo(() => allPosts.slice(0, visibleCount), [allPosts, visibleCount]);
   const sortedPosts = useMemo(() => {
-    const cutoff = now.getTime() - 48 * 60 * 60 * 1000;
     return [...visiblePosts]
-      .filter((p) => new Date(p.created_at).getTime() >= cutoff)
+      .filter((p) => {
+        const s = scores[p.id];
+        return !s || s.score >= floor;
+      })
       .sort((a, b) => (scores[b.id]?.score ?? -1) - (scores[a.id]?.score ?? -1));
-  }, [visiblePosts, scores, now]);
+  }, [visiblePosts, scores, floor]);
 
-  // tick for "last sync Xs ago"
+  const droppedCount = useMemo(() => {
+    return visiblePosts.filter((p) => {
+      const s = scores[p.id];
+      return s && s.score < floor;
+    }).length;
+  }, [visiblePosts, scores, floor]);
+
+  // tick for "last sync Xm ago" - slower tick to avoid re-render jank
   useEffect(() => {
-    const t = setInterval(() => setNow(new Date()), 1000);
+    const t = setInterval(() => setNow(new Date()), NOW_TICK_MS);
     return () => clearInterval(t);
   }, []);
 
@@ -84,9 +98,7 @@ export default function SalesforceDemoPage() {
       if (!isInitialized.current) {
         isInitialized.current = true;
         setAllPosts(incoming);
-        setVisibleCount(
-          m === "demo" ? Math.min(DEMO_INITIAL_VISIBLE, incoming.length) : incoming.length
-        );
+        setVisibleCount(incoming.length);
       } else {
         setAllPosts((prev) => {
           const existing = new Set(prev.map((p) => p.id));
@@ -99,20 +111,6 @@ export default function SalesforceDemoPage() {
       setLastSync(new Date());
     } catch (e) {
       setErr(e instanceof Error ? e.message : "fetch failed");
-    }
-  }
-
-  async function streamOneDemoPost() {
-    try {
-      const r = await fetch("/api/x-posts/stream");
-      const data = await r.json();
-      const post = data.post as Post | undefined;
-      if (!post) return;
-      setAllPosts((prev) => [post, ...prev]);
-      setVisibleCount((c) => c + 1);
-      setLastSync(new Date());
-    } catch {
-      // silent - keeps trying next tick
     }
   }
 
@@ -154,30 +152,21 @@ export default function SalesforceDemoPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
-  // auto-reveal (demo) or auto-poll (live) - runs continuously, never stops
+  // auto-poll (live only) - demo mode is static, no streaming
   useEffect(() => {
-    const delay = mode === "demo" ? DEMO_REVEAL_MS : LIVE_POLL_MS;
+    if (mode !== "live") return;
     const handle = setInterval(() => {
-      if (mode === "demo") {
-        if (visibleCount < allPosts.length) {
-          setVisibleCount((v) => Math.min(v + 1, allPosts.length));
-        } else {
-          void streamOneDemoPost();
-        }
-      } else {
-        void doFetch("live");
-      }
-    }, delay);
+      void doFetch("live");
+    }, LIVE_POLL_MS);
     return () => clearInterval(handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, allPosts.length, visibleCount]);
+  }, [mode]);
 
-  // resync when tab becomes visible again (after laptop sleep / tab switch)
+  // resync when tab becomes visible again (live mode only - demo is static)
   useEffect(() => {
     function onVisible() {
       if (document.visibilityState !== "visible") return;
       if (mode === "live") void doFetch("live");
-      else void streamOneDemoPost();
     }
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
@@ -229,12 +218,17 @@ export default function SalesforceDemoPage() {
     }
   }
 
-  const isStreaming = mode === "live" || visibleCount < allPosts.length;
+  const isStreaming = mode === "live";
   const aboveCount = sortedPosts.filter((p) => (scores[p.id]?.score ?? 0) >= threshold).length;
   const scoringAny = scoringIds.size > 0;
 
   return (
     <div className="sf-demo">
+      <div className="sf-wip">
+        <span className="sf-wip-dot" />
+        <span className="sf-wip-label">Work in progress</span>
+        <span className="sf-wip-text">This tool is still being built and is not ready for production use.</span>
+      </div>
       <div className="sf-eyebrow">Salesforce · X engagement pipeline</div>
       <h1 className="sf-title">From the top 10K to the right reply.</h1>
       <p className="sf-sub">
@@ -281,8 +275,8 @@ export default function SalesforceDemoPage() {
               <div className="sf-stat-value">Continuous</div>
               <div className="sf-stat-note">
                 {mode === "live"
-                  ? `polls X every ${LIVE_POLL_MS / 1000}s · 48h rolling window`
-                  : `streams seeded posts · 48h rolling window`}
+                  ? `polls X every ${LIVE_POLL_MS / 1000}s · scores as posts arrive`
+                  : `streams seeded posts · scores as they arrive`}
               </div>
             </div>
           </div>
@@ -308,17 +302,47 @@ export default function SalesforceDemoPage() {
                 {mode === "live" ? "Live X API" : "Demo data"}
               </button>
             </div>
-            <div className="sf-threshold">
-              Threshold
-              <input
-                type="range"
-                min={0}
-                max={100}
-                step={5}
-                value={threshold}
-                onChange={(e) => setThreshold(parseInt(e.target.value))}
-              />
-              <strong style={{ color: "var(--accent)", fontSize: 14 }}>{threshold}</strong>
+            <div className="sf-range-wrap">
+              <span className="sf-range-label">
+                Hide &lt; <strong style={{ color: "var(--text-3)" }}>{floor}</strong>
+              </span>
+              <div className="sf-range">
+                <div className="sf-range-track" />
+                <div
+                  className="sf-range-track-muted"
+                  style={{ width: `${floor}%` }}
+                />
+                <div
+                  className="sf-range-track-active"
+                  style={{ left: `${floor}%`, width: `${Math.max(0, threshold - floor)}%` }}
+                />
+                <input
+                  type="range"
+                  className="floor"
+                  min={0}
+                  max={100}
+                  step={5}
+                  value={floor}
+                  onChange={(e) => {
+                    const v = parseInt(e.target.value);
+                    setFloor(Math.min(v, threshold - 5));
+                  }}
+                />
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={5}
+                  value={threshold}
+                  onChange={(e) => {
+                    const v = parseInt(e.target.value);
+                    setThreshold(Math.max(v, floor + 5));
+                  }}
+                />
+              </div>
+              <span className="sf-range-label">
+                Engage ≥ <strong>{threshold}</strong>
+              </span>
             </div>
             <button className="sf-btn ghost" onClick={() => setRubricOpen((v) => !v)}>
               {rubricOpen ? "Hide rubric" : "Show rubric"}
@@ -342,7 +366,7 @@ export default function SalesforceDemoPage() {
           <span className="sf-section-num">03</span>
           <span className="sf-section-title">Scored feed</span>
           <span className="sf-section-hint">
-            rolling 48h window · {sortedPosts.length} posts · {aboveCount} above threshold
+            {sortedPosts.length} shown · {aboveCount} above threshold · {droppedCount} dropped (&lt;{floor})
             {scoringAny ? ` · scoring ${scoringIds.size}` : ""}
             {source ? ` · ${source}` : ""}
           </span>
@@ -398,7 +422,7 @@ export default function SalesforceDemoPage() {
               </div>
 
               <div className="sf-post-actions">
-                {above && (
+                {s && (
                   <button
                     className="sf-btn"
                     onClick={() => generateAngles(p)}
