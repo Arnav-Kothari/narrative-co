@@ -1,4 +1,4 @@
-import type { XPost } from "../x-posts/route";
+import type { XPost } from "./types";
 
 // Real tweets pulled directly from X API on 2026-04-15/16, all from the
 // last 48 hours. Timestamps, text, and metrics are from the live tweet

@@ -1,18 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
 
-// Drop additional source-of-truth markdown files into /knowledge at the repo
-// root and they'll be concatenated into the system prompt for both scoring
-// and angle drafting. Replace the files to refresh the model's context -
-// no code change required.
+// Drop additional source-of-truth markdown files into
+// agents/engagement/knowledge/ and they'll be concatenated into the system
+// prompt for both scoring and angle drafting. Replace the files to refresh
+// the model's context - no code change required.
 //
 // Current files:
-//   knowledge/messaging.md  - canonical messaging rules (terminology,
-//                             disallowed framings, alignment checklist)
+//   knowledge/messaging.md  - canonical messaging rules
 //   knowledge/audience.md   - Enterprise AI Navigator persona definitions
-//                             (who we're writing for)
 
-const KNOWLEDGE_DIR = path.join(process.cwd(), "knowledge");
+const KNOWLEDGE_DIR = path.join(process.cwd(), "agents", "engagement", "knowledge");
 
 type CachedKnowledge = {
   text: string;

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { DEFAULT_RUBRIC } from "../_lib/rubric";
-import { withKnowledge } from "../_lib/knowledge";
+import { DEFAULT_RUBRIC } from "@/agents/engagement/rubric";
+import { withKnowledge } from "@/agents/engagement/knowledge";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;

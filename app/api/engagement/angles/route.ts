@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { DEFAULT_TONE } from "../_lib/tone";
-import { withKnowledge } from "../_lib/knowledge";
+import { DEFAULT_TONE } from "@/agents/engagement/tone";
+import { withKnowledge } from "@/agents/engagement/knowledge";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;

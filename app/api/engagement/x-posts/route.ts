@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { TwitterApi } from "twitter-api-v2";
-import { SEED_POSTS } from "../_lib/seedPosts";
-import { hasStorage, readCache, pruneCache, writeCache } from "../_lib/storage";
+import { SEED_POSTS } from "@/agents/engagement/seedPosts";
+import { hasStorage, readCache, pruneCache, writeCache } from "@/agents/engagement/storage";
 
 export const runtime = "nodejs";
 
@@ -25,25 +25,8 @@ function userClient() {
   });
 }
 
-export type XPost = {
-  id: string;
-  text: string;
-  created_at: string;
-  author: {
-    id: string;
-    username: string;
-    name: string;
-    profile_image_url?: string;
-  };
-  metrics: {
-    like_count: number;
-    reply_count: number;
-    retweet_count: number;
-    quote_count: number;
-    impression_count?: number;
-  };
-  url: string;
-};
+import type { XPost } from "@/agents/engagement/types";
+export type { XPost } from "@/agents/engagement/types";
 
 async function xFetch(path: string, token: string) {
   const res = await fetch(`${X_API_BASE}${path}`, {

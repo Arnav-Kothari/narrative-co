@@ -21,9 +21,9 @@ export const config = {
   matcher: [
     '/dashboard/:path*',
     '/clients/:path*',
-    '/api/x-posts/:path*',
-    '/api/score/:path*',
-    '/api/angles/:path*',
-    '/api/slack-send/:path*',
+    '/api/engagement/x-posts/:path*',
+    '/api/engagement/score/:path*',
+    '/api/engagement/angles/:path*',
+    '/api/engagement/slack-send/:path*',
   ],
 };

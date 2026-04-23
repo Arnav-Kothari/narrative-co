@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { DEFAULT_RUBRIC } from "../../api/_lib/rubric";
-import { DEFAULT_TONE } from "../../api/_lib/tone";
+import { DEFAULT_RUBRIC } from "@/agents/engagement/rubric";
+import { DEFAULT_TONE } from "@/agents/engagement/tone";
 import "./demo.css";
 
 type Post = {
@@ -245,7 +245,7 @@ export default function SalesforceDemoPage() {
           : null;
       const qs = new URLSearchParams({ mode: m });
       if (newestId) qs.set("since_id", newestId);
-      const r = await fetch(`/api/x-posts?${qs.toString()}`);
+      const r = await fetch(`/api/engagement/x-posts?${qs.toString()}`);
       const data = await r.json();
       const incoming: Post[] = data.posts ?? [];
       const incomingScores: Record<string, Score> | undefined = data.scores;
@@ -294,7 +294,7 @@ export default function SalesforceDemoPage() {
     try {
       for (let i = 0; i < batch.length; i += CHUNK) {
         const chunk = batch.slice(i, i + CHUNK);
-        const r = await fetch("/api/score", {
+        const r = await fetch("/api/engagement/score", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ posts: chunk, rubric: rubricRef.current || undefined }),
@@ -385,7 +385,7 @@ export default function SalesforceDemoPage() {
   async function generateAngles(post: Post) {
     setAnglesLoading((s) => ({ ...s, [post.id]: true }));
     try {
-      const r = await fetch("/api/angles", {
+      const r = await fetch("/api/engagement/angles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ post, tone: toneRef.current || undefined }),

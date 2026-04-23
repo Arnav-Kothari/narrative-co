@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { generateSeedPosts } from "../../_lib/seedPosts";
+import { generateSeedPosts } from "@/agents/engagement/seedPosts";
 
 export const runtime = "nodejs";
 

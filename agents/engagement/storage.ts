@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import type { XPost } from "../x-posts/route";
+import type { XPost } from "./types";
 
 export type StoredScore = {
   id: string;

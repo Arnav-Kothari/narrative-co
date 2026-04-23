@@ -1,5 +1,5 @@
 import { TwitterApi } from "twitter-api-v2";
-import type { XPost } from "../x-posts/route";
+import type { XPost } from "./types";
 
 const X_API_BASE = "https://api.twitter.com/2";
 const PAGE_SIZE = 100;
