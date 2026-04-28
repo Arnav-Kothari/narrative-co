@@ -1,20 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
 
-// Targeted retrieval over the customer stories section of
-// knowledge/salesforce_fy26_consolidated.md. The consolidated doc is too big
-// to inject into every prompt (3MB+); instead we parse out per-customer blocks
-// once and only attach the relevant one to a post when its name appears.
+// Targeted retrieval over knowledge/salesforce_customer_stories.md. The
+// markdown is too big to inject into every prompt; instead we parse out
+// per-customer blocks once and only attach the relevant one to a post when
+// its name appears.
 
-const CONSOLIDATED_PATH = path.join(
+const STORIES_PATH = path.join(
   process.cwd(),
   "agents",
   "engagement",
   "knowledge",
-  "salesforce_fy26_consolidated.md"
+  "salesforce_customer_stories.md"
 );
-
-const SECTION_HEADING = "# Customer Stories - Public Reference Library";
 
 export type CustomerEntry = {
   slug: string;
@@ -71,10 +69,10 @@ let cache: { entries: CustomerEntry[]; loadedAt: number } | null = null;
 const CACHE_TTL_MS = 60_000;
 
 function parseEntries(content: string): CustomerEntry[] {
-  const idx = content.indexOf(SECTION_HEADING);
-  if (idx < 0) return [];
-  // Append a sentinel so the final entry's lookahead always finds a "## "
-  const section = content.substring(idx) + "\n## __end__\n";
+  // Append a sentinel so the final entry's lookahead always finds a "## ".
+  // The TOC and prose at the top don't have the <a id="..."> + **URL:**
+  // shape, so the regex naturally skips them.
+  const section = content + "\n## __end__\n";
 
   // Each entry: "## Title\n\n<a id=\"slug\"></a>\n**URL:** url\n\n...body... up to next ##"
   const re = /^## (.+?)\n\n<a id="([^"]+)"><\/a>\n\*\*URL:\*\* (.+?)\n([\s\S]*?)(?=^## )/gm;
@@ -96,7 +94,7 @@ export function getCustomers(): CustomerEntry[] {
   if (cache && now - cache.loadedAt < CACHE_TTL_MS) return cache.entries;
   let content = "";
   try {
-    content = fs.readFileSync(CONSOLIDATED_PATH, "utf8");
+    content = fs.readFileSync(STORIES_PATH, "utf8");
   } catch {
     cache = { entries: [], loadedAt: now };
     return [];

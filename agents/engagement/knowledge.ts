@@ -9,17 +9,14 @@ import path from "node:path";
 // Current files:
 //   knowledge/messaging.md  - canonical messaging rules
 //   knowledge/audience.md   - Enterprise AI Navigator persona definitions
-//   knowledge/salesforce_fy26_consolidated.md  - large reference doc, NOT auto-loaded;
-//                                                see customers.ts for targeted retrieval
-//   knowledge/salesforce_customer_stories.md   - same data as customer section in
-//                                                consolidated, also skipped from auto-load
+//   knowledge/salesforce_customer_stories.md - large stories doc, NOT auto-loaded;
+//                                              see customers.ts for targeted retrieval
 
 const KNOWLEDGE_DIR = path.join(process.cwd(), "agents", "engagement", "knowledge");
 
 // Files too large to inject into every prompt. They are retrieved selectively
 // (e.g. customers.ts pulls per-customer blocks when a post mentions one).
 const SKIP_AUTOLOAD = new Set([
-  "salesforce_fy26_consolidated.md",
   "salesforce_customer_stories.md",
 ]);
 
