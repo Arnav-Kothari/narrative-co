@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { DEFAULT_RUBRIC } from "@/agents/engagement/rubric";
-import { DEFAULT_TONE } from "@/agents/engagement/tone";
 import "./demo.css";
 
 type Post = {
@@ -26,8 +24,6 @@ type PersistedState = {
   scores: Record<string, Score>;
   angles: Record<string, Angle[]>;
   copiedIds: string[];
-  rubric?: string;
-  tone?: string;
 };
 
 function loadPersisted(): PersistedState | null {
@@ -66,10 +62,6 @@ export default function SalesforceDemoPage() {
 
   const [threshold, setThreshold] = useState(70);
   const [floor, setFloor] = useState(10);
-  const [rubricOpen, setRubricOpen] = useState(false);
-  const [rubricTab, setRubricTab] = useState<"scoring" | "tone">("scoring");
-  const [rubric, setRubric] = useState(DEFAULT_RUBRIC);
-  const [tone, setTone] = useState(DEFAULT_TONE);
   const [mode, setMode] = useState<"live" | "demo">("live");
   const [source, setSource] = useState<string | null>(null);
   const [lastSync, setLastSync] = useState<Date | null>(null);
@@ -94,15 +86,6 @@ export default function SalesforceDemoPage() {
     demo: { posts: [], visibleCount: 0, initialized: false, lastSync: null },
   });
   const prevMode = useRef<"live" | "demo">("live");
-
-  const rubricRef = useRef("");
-  const toneRef = useRef("");
-  useEffect(() => {
-    rubricRef.current = rubric;
-  }, [rubric]);
-  useEffect(() => {
-    toneRef.current = tone;
-  }, [tone]);
 
   const visiblePosts = useMemo(() => allPosts.slice(0, visibleCount), [allPosts, visibleCount]);
   const sortedPosts = useMemo(() => {
@@ -145,8 +128,6 @@ export default function SalesforceDemoPage() {
       setAngles(persisted.angles ?? {});
       setCopiedIds(new Set(persisted.copiedIds ?? []));
       setLastSync(current.lastSync);
-      if (persisted.rubric) setRubric(persisted.rubric);
-      if (persisted.tone) setTone(persisted.tone);
     }
     setHydrated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -181,8 +162,6 @@ export default function SalesforceDemoPage() {
         scores,
         angles,
         copiedIds: Array.from(copiedIds),
-        rubric,
-        tone,
       };
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
@@ -197,7 +176,7 @@ export default function SalesforceDemoPage() {
       }
     }, 2000);
     return () => clearTimeout(handle);
-  }, [allPosts, visibleCount, scores, angles, copiedIds, lastSync, rubric, tone, hydrated]);
+  }, [allPosts, visibleCount, scores, angles, copiedIds, lastSync, hydrated]);
 
   async function doFetch(modeOverride?: "live" | "demo") {
     const m = modeOverride ?? mode;
@@ -264,7 +243,7 @@ export default function SalesforceDemoPage() {
         const r = await fetch("/api/engagement/score", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ posts: chunk, rubric: rubricRef.current || undefined }),
+          body: JSON.stringify({ posts: chunk }),
         });
         const d = await r.json();
         if (!r.ok) throw new Error(d.error ?? "scoring failed");
@@ -355,7 +334,7 @@ export default function SalesforceDemoPage() {
       const r = await fetch("/api/engagement/angles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ post, tone: toneRef.current || undefined }),
+        body: JSON.stringify({ post }),
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error ?? "angles failed");
@@ -446,7 +425,6 @@ export default function SalesforceDemoPage() {
         <div className="sf-section-head">
           <span className="sf-section-num">02</span>
           <span className="sf-section-title">Pipeline</span>
-          <span className="sf-section-hint">rubric editable</span>
         </div>
         <div className="sf-card">
           <div className="sf-controls">
@@ -502,62 +480,7 @@ export default function SalesforceDemoPage() {
                 Engage ≥ <strong>{threshold}</strong>
               </span>
             </div>
-            <button className="sf-btn ghost" onClick={() => setRubricOpen((v) => !v)}>
-              {rubricOpen ? "Hide rubric" : "Show rubric"}
-            </button>
           </div>
-          {rubricOpen && (
-            <div className="sf-rubric-panel">
-              <div className="sf-rubric-tabs">
-                <button
-                  className={`sf-rubric-tab ${rubricTab === "scoring" ? "active" : ""}`}
-                  onClick={() => setRubricTab("scoring")}
-                >
-                  Scoring rubric
-                  <span className="sf-rubric-tab-sub">when to engage</span>
-                </button>
-                <button
-                  className={`sf-rubric-tab ${rubricTab === "tone" ? "active" : ""}`}
-                  onClick={() => setRubricTab("tone")}
-                >
-                  Voice rubric
-                  <span className="sf-rubric-tab-sub">how to sound</span>
-                </button>
-                <div className="sf-rubric-actions">
-                  <button
-                    className="sf-btn ghost"
-                    style={{ padding: "6px 12px", fontSize: 10 }}
-                    onClick={() => {
-                      if (rubricTab === "scoring") setRubric(DEFAULT_RUBRIC);
-                      else setTone(DEFAULT_TONE);
-                    }}
-                  >
-                    Reset to default
-                  </button>
-                </div>
-              </div>
-              {rubricTab === "scoring" ? (
-                <textarea
-                  key="scoring"
-                  className="sf-rubric"
-                  value={rubric}
-                  onChange={(e) => setRubric(e.target.value)}
-                />
-              ) : (
-                <textarea
-                  key="tone"
-                  className="sf-rubric"
-                  value={tone}
-                  onChange={(e) => setTone(e.target.value)}
-                />
-              )}
-              <div className="sf-rubric-hint">
-                Edits save automatically. {rubricTab === "scoring"
-                  ? "Applies to the next batch of posts scored."
-                  : "Applies to the next angles drafted."}
-              </div>
-            </div>
-          )}
         </div>
       </section>
 
