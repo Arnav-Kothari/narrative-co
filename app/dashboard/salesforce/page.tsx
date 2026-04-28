@@ -19,8 +19,10 @@ const LIVE_POLL_MS = 60_000;
 const STORAGE_KEY = "sf-demo-v2";
 
 type PersistedState = {
-  live: { posts: Post[]; visibleCount: number; initialized: boolean; lastSync: string | null };
-  demo: { posts: Post[]; visibleCount: number; initialized: boolean; lastSync: string | null };
+  posts: Post[];
+  visibleCount: number;
+  initialized: boolean;
+  lastSync: string | null;
   scores: Record<string, Score>;
   angles: Record<string, Angle[]>;
   copiedIds: string[];
@@ -62,7 +64,6 @@ export default function SalesforceDemoPage() {
 
   const [threshold, setThreshold] = useState(70);
   const [floor, setFloor] = useState(10);
-  const [mode, setMode] = useState<"live" | "demo">("live");
   const [source, setSource] = useState<string | null>(null);
   const [lastSync, setLastSync] = useState<Date | null>(null);
   const [now, setNow] = useState<Date>(new Date());
@@ -72,20 +73,21 @@ export default function SalesforceDemoPage() {
   const [copiedIds, setCopiedIds] = useState<Set<string>>(new Set());
   const [err, setErr] = useState<string | null>(null);
 
-  // Cache the posts/visibleCount/init/lastSync per mode so switching tabs
-  // doesn't wipe the state and force us to re-fetch + re-score.
+  // Cache the posts/visibleCount/init/lastSync in a ref so React re-renders
+  // don't wipe what we've already paid to fetch.
   // Scores/angles/copiedIds are keyed by post ID and carry over naturally.
-  type ModeCache = {
+  type FeedCache = {
     posts: Post[];
     visibleCount: number;
     initialized: boolean;
     lastSync: Date | null;
   };
-  const modeCache = useRef<{ live: ModeCache; demo: ModeCache }>({
-    live: { posts: [], visibleCount: 0, initialized: false, lastSync: null },
-    demo: { posts: [], visibleCount: 0, initialized: false, lastSync: null },
+  const feedCache = useRef<FeedCache>({
+    posts: [],
+    visibleCount: 0,
+    initialized: false,
+    lastSync: null,
   });
-  const prevMode = useRef<"live" | "demo">("live");
 
   const visiblePosts = useMemo(() => allPosts.slice(0, visibleCount), [allPosts, visibleCount]);
   const sortedPosts = useMemo(() => {
@@ -109,28 +111,20 @@ export default function SalesforceDemoPage() {
   useEffect(() => {
     const persisted = loadPersisted();
     if (persisted) {
-      modeCache.current.live = {
-        posts: persisted.live.posts ?? [],
-        visibleCount: persisted.live.visibleCount ?? 0,
-        initialized: persisted.live.initialized ?? false,
-        lastSync: persisted.live.lastSync ? new Date(persisted.live.lastSync) : null,
+      feedCache.current = {
+        posts: persisted.posts ?? [],
+        visibleCount: persisted.visibleCount ?? 0,
+        initialized: persisted.initialized ?? false,
+        lastSync: persisted.lastSync ? new Date(persisted.lastSync) : null,
       };
-      modeCache.current.demo = {
-        posts: persisted.demo.posts ?? [],
-        visibleCount: persisted.demo.visibleCount ?? 0,
-        initialized: persisted.demo.initialized ?? false,
-        lastSync: persisted.demo.lastSync ? new Date(persisted.demo.lastSync) : null,
-      };
-      const current = modeCache.current[mode];
-      setAllPosts(current.posts);
-      setVisibleCount(current.visibleCount);
+      setAllPosts(feedCache.current.posts);
+      setVisibleCount(feedCache.current.visibleCount);
       setScores(persisted.scores ?? {});
       setAngles(persisted.angles ?? {});
       setCopiedIds(new Set(persisted.copiedIds ?? []));
-      setLastSync(current.lastSync);
+      setLastSync(feedCache.current.lastSync);
     }
     setHydrated(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // tick for "last sync Xm ago" - slower tick to avoid re-render jank
@@ -147,18 +141,10 @@ export default function SalesforceDemoPage() {
     if (typeof window === "undefined") return;
     const handle = setTimeout(() => {
       const snapshot: PersistedState = {
-        live: {
-          posts: modeCache.current.live.posts,
-          visibleCount: modeCache.current.live.visibleCount,
-          initialized: modeCache.current.live.initialized,
-          lastSync: modeCache.current.live.lastSync?.toISOString() ?? null,
-        },
-        demo: {
-          posts: modeCache.current.demo.posts,
-          visibleCount: modeCache.current.demo.visibleCount,
-          initialized: modeCache.current.demo.initialized,
-          lastSync: modeCache.current.demo.lastSync?.toISOString() ?? null,
-        },
+        posts: feedCache.current.posts,
+        visibleCount: feedCache.current.visibleCount,
+        initialized: feedCache.current.initialized,
+        lastSync: feedCache.current.lastSync?.toISOString() ?? null,
         scores,
         angles,
         copiedIds: Array.from(copiedIds),
@@ -178,25 +164,24 @@ export default function SalesforceDemoPage() {
     return () => clearTimeout(handle);
   }, [allPosts, visibleCount, scores, angles, copiedIds, lastSync, hydrated]);
 
-  async function doFetch(modeOverride?: "live" | "demo") {
-    const m = modeOverride ?? mode;
-    const cache = modeCache.current[m];
+  async function doFetch() {
+    const cache = feedCache.current;
     try {
       const newestId =
-        m === "live" && cache.initialized && cache.posts.length > 0
+        cache.initialized && cache.posts.length > 0
           ? cache.posts.reduce(
               (max, p) => (BigInt(p.id) > BigInt(max) ? p.id : max),
               cache.posts[0].id
             )
           : null;
-      const qs = new URLSearchParams({ mode: m });
+      const qs = new URLSearchParams();
       if (newestId) qs.set("since_id", newestId);
-      const r = await fetch(`/api/engagement/x-posts?${qs.toString()}`);
+      const r = await fetch(`/api/engagement/x-posts${qs.toString() ? `?${qs.toString()}` : ""}`);
       const data = await r.json();
       const incoming: Post[] = data.posts ?? [];
       const incomingScores: Record<string, Score> | undefined = data.scores;
       setSource(data.source ?? null);
-      if (data.error) setErr(`X API: ${data.error} - using seed posts.`);
+      if (data.error) setErr(`X API: ${data.error}`);
       else if (data.warning) setErr(data.warning);
       else setErr(null);
 
@@ -215,11 +200,10 @@ export default function SalesforceDemoPage() {
       } else {
         const existing = new Set(cache.posts.map((p) => p.id));
         const newOnes = incoming.filter((p) => !existing.has(p.id));
-        // Prune posts older than 48h (live only).
-        const pruned =
-          m === "live"
-            ? cache.posts.filter((p) => new Date(p.created_at).getTime() >= cutoffMs)
-            : cache.posts;
+        // Prune posts older than 48h.
+        const pruned = cache.posts.filter(
+          (p) => new Date(p.created_at).getTime() >= cutoffMs
+        );
         const merged = [...newOnes, ...pruned];
         cache.posts = merged;
         cache.visibleCount = merged.length;
@@ -269,51 +253,32 @@ export default function SalesforceDemoPage() {
   }
 
   // reset + initial fetch whenever mode changes
+  // initial fetch once we've hydrated from localStorage
   useEffect(() => {
     if (!hydrated) return;
-    const prev = prevMode.current;
-    if (prev !== mode) {
-      modeCache.current[prev] = {
-        posts: allPosts,
-        visibleCount,
-        initialized: modeCache.current[prev].initialized,
-        lastSync: modeCache.current[prev].lastSync,
-      };
-    }
-    prevMode.current = mode;
-
-    const cache = modeCache.current[mode];
-    setAllPosts(cache.posts);
-    setVisibleCount(cache.visibleCount);
-    setLastSync(cache.lastSync);
-    setScoringIds(new Set());
-
-    if (!cache.initialized) {
-      void doFetch(mode);
-    }
+    if (!feedCache.current.initialized) void doFetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, hydrated]);
+  }, [hydrated]);
 
-  // auto-poll (live only) - demo mode is static, no streaming
+  // poll for new posts on a fixed cadence
   useEffect(() => {
-    if (mode !== "live") return;
     const handle = setInterval(() => {
-      void doFetch("live");
+      void doFetch();
     }, LIVE_POLL_MS);
     return () => clearInterval(handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode]);
+  }, []);
 
-  // resync when tab becomes visible again (live mode only - demo is static)
+  // resync when tab becomes visible again
   useEffect(() => {
     function onVisible() {
       if (document.visibilityState !== "visible") return;
-      if (mode === "live") void doFetch("live");
+      void doFetch();
     }
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode]);
+  }, []);
 
   // auto-score newly visible posts
   useEffect(() => {
@@ -360,7 +325,6 @@ export default function SalesforceDemoPage() {
     }
   }
 
-  const isStreaming = mode === "live";
   const aboveCount = sortedPosts.filter((p) => (scores[p.id]?.score ?? 0) >= threshold).length;
   const scoringAny = scoringIds.size > 0;
 
@@ -382,8 +346,8 @@ export default function SalesforceDemoPage() {
           <span className="sf-section-num">01</span>
           <span className="sf-section-title">Source</span>
           <span className="sf-section-hint">
-            <span className={`sf-live-dot ${isStreaming ? "on" : ""}`} />
-            {isStreaming ? "streaming" : "caught up"} · last sync {timeAgo(lastSync, now)}
+            <span className="sf-live-dot on" />
+            streaming · last sync {timeAgo(lastSync, now)}
           </span>
         </div>
         <div className="sf-card">
@@ -411,9 +375,7 @@ export default function SalesforceDemoPage() {
               <div className="sf-stat-label">Cadence</div>
               <div className="sf-stat-value">Continuous</div>
               <div className="sf-stat-note">
-                {mode === "live"
-                  ? `polls X every ${LIVE_POLL_MS / 1000}s · scores as posts arrive`
-                  : `streams seeded posts · scores as they arrive`}
+                polls X every {LIVE_POLL_MS / 1000}s · scores as posts arrive
               </div>
             </div>
           </div>
@@ -428,16 +390,6 @@ export default function SalesforceDemoPage() {
         </div>
         <div className="sf-card">
           <div className="sf-controls">
-            <div className="sf-threshold" style={{ marginRight: 8 }}>
-              Source
-              <button
-                className="sf-btn ghost"
-                style={{ padding: "8px 14px" }}
-                onClick={() => setMode((m) => (m === "live" ? "demo" : "live"))}
-              >
-                {mode === "live" ? "Live X API" : "Demo data"}
-              </button>
-            </div>
             <div className="sf-range-wrap">
               <span className="sf-range-label">
                 Hide &lt; <strong style={{ color: "var(--text-3)" }}>{floor}</strong>

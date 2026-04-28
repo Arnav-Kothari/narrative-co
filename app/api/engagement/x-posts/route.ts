@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { TwitterApi } from "twitter-api-v2";
-import { SEED_POSTS } from "@/agents/engagement/seedPosts";
 import {
   hasStorage,
   readCache,
@@ -54,12 +53,7 @@ const MAX_PAGES = 10; // cap total pagination at 1000 tweets
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const mode = url.searchParams.get("mode") ?? "live";
   const sinceId = url.searchParams.get("since_id");
-
-  if (mode === "demo") {
-    return NextResponse.json({ posts: SEED_POSTS, source: "seed" });
-  }
 
   // If KV storage is configured, read directly from it - cron keeps it fresh.
   if (hasStorage()) {
@@ -250,6 +244,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ posts, source: "live" });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "unknown error";
-    return NextResponse.json({ error: msg, posts: SEED_POSTS, source: "seed-fallback" });
+    return NextResponse.json({ error: msg, posts: [], source: "live-error" }, { status: 502 });
   }
 }
