@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { DEFAULT_TONE } from "@/agents/engagement/tone";
 import { withKnowledge } from "@/agents/engagement/knowledge";
+import { buildCustomerContext, findCustomersInText } from "@/agents/engagement/customers";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -21,6 +22,7 @@ export async function POST(req: Request) {
     tone?: string;
   };
   const voice = withKnowledge(tone || DEFAULT_TONE);
+  const customerCtx = buildCustomerContext(findCustomersInText(post.text));
 
   const client = new Anthropic({ apiKey });
 
@@ -36,7 +38,7 @@ export async function POST(req: Request) {
 """
 ${post.text}
 """
-
+${customerCtx ? `\n${customerCtx}\n` : ""}
 Draft 3 distinct reply angles from @salesforce. Return ONLY the JSON array.`,
         },
       ],

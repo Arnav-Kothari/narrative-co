@@ -18,8 +18,8 @@ export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
 const SCORE_CONCURRENCY = 15;
-const MAX_SCORE_PER_RUN = 40; // stay under Cloudflare's ~100s gateway timeout
-const INITIAL_HOURS = 12; // first run only pulls 12h; subsequent runs catch up via since_id
+const MAX_SCORE_PER_RUN = 150; // hourly cron usually sees <50 new posts; cap is a safety belt
+const INITIAL_HOURS = 48; // first run does a full 48h backfill so the dashboard is instantly populated
 
 async function scoreBatch(posts: XPost[], client: Anthropic): Promise<StoredScore[]> {
   async function scoreOne(p: XPost): Promise<StoredScore> {
@@ -27,7 +27,11 @@ async function scoreBatch(posts: XPost[], client: Anthropic): Promise<StoredScor
       const msg = await client.messages.create({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 400,
-        system: DEFAULT_RUBRIC,
+        // System prompt is identical for every post - mark it cacheable so
+        // we pay full input rate once per ~5min and 10% on every subsequent post.
+        system: [
+          { type: "text", text: DEFAULT_RUBRIC, cache_control: { type: "ephemeral" } },
+        ],
         messages: [
           {
             role: "user",

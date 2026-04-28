@@ -202,11 +202,13 @@ export default function SalesforceDemoPage() {
     return () => clearInterval(t);
   }, []);
 
-  // persist state to localStorage so a page refresh doesn't wipe scored posts
+  // persist state to localStorage so a page refresh doesn't wipe scored posts.
+  // Debounced so a burst of score/angle updates doesn't trigger a serialize+write
+  // on every render. If quota is hit, retry without angles (the largest blob).
   useEffect(() => {
     if (!hydrated) return;
     if (typeof window === "undefined") return;
-    try {
+    const handle = setTimeout(() => {
       const snapshot: PersistedState = {
         live: {
           posts: modeCache.current.live.posts,
@@ -226,10 +228,19 @@ export default function SalesforceDemoPage() {
         rubric,
         tone,
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
-    } catch {
-      // quota exceeded or serialization failed - silent
-    }
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+      } catch {
+        // Most likely quota - retry without angles, which are the heaviest payload
+        // and the easiest to regenerate on demand.
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...snapshot, angles: {} }));
+        } catch {
+          // Give up silently; posts/scores will refetch on next visit.
+        }
+      }
+    }, 2000);
+    return () => clearTimeout(handle);
   }, [allPosts, visibleCount, scores, angles, copiedIds, lastSync, rubric, tone, hydrated]);
 
   async function doFetch(modeOverride?: "live" | "demo") {
@@ -425,16 +436,6 @@ export default function SalesforceDemoPage() {
         <span className="sf-wip-label">Work in progress</span>
         <span className="sf-wip-text">This tool is still being built and is not ready for production use.</span>
       </div>
-      {sortedPosts.length === 0 && hydrated && (
-        <div className="sf-wip" style={{ borderLeftColor: "var(--steel)" }}>
-          <span className="sf-wip-dot" style={{ background: "var(--steel)" }} />
-          <span className="sf-wip-label" style={{ color: "var(--steel)" }}>First load</span>
-          <span className="sf-wip-text">
-            If this is your first time opening this tab, the feed needs about 2 minutes to
-            fully fetch and score posts. It will populate automatically.
-          </span>
-        </div>
-      )}
       <div className="sf-eyebrow">Salesforce · X engagement pipeline</div>
       <h1 className="sf-title">From the top 10K to the right reply.</h1>
       <p className="sf-sub">

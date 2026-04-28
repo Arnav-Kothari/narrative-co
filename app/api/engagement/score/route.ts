@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { DEFAULT_RUBRIC } from "@/agents/engagement/rubric";
 import { withKnowledge } from "@/agents/engagement/knowledge";
+import { buildCustomerContext, findCustomersInText } from "@/agents/engagement/customers";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -35,10 +36,13 @@ export async function POST(req: Request) {
 
   async function scoreOne(p: Post): Promise<ScoreResult> {
     try {
+      const customerCtx = buildCustomerContext(findCustomersInText(p.text));
       const msg = await client.messages.create({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 400,
-        system: rubric,
+        system: [
+          { type: "text", text: rubric, cache_control: { type: "ephemeral" } },
+        ],
         messages: [
           {
             role: "user",
@@ -48,7 +52,7 @@ Post:
 """
 ${p.text}
 """
-
+${customerCtx ? `\n${customerCtx}\n` : ""}
 Return ONLY the JSON object.`,
           },
         ],

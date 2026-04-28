@@ -1,9 +1,17 @@
 import { NextResponse } from "next/server";
 import { TwitterApi } from "twitter-api-v2";
 import { SEED_POSTS } from "@/agents/engagement/seedPosts";
-import { hasStorage, readCache, pruneCache, writeCache } from "@/agents/engagement/storage";
+import {
+  hasStorage,
+  readCache,
+  pruneCache,
+  writeCache,
+  type CacheState,
+} from "@/agents/engagement/storage";
+import { fetchListPosts } from "@/agents/engagement/xfetch";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const X_API_BASE = "https://api.twitter.com/2";
 
@@ -56,7 +64,7 @@ export async function GET(req: Request) {
   // If KV storage is configured, read directly from it - cron keeps it fresh.
   if (hasStorage()) {
     const cache = await readCache();
-    if (cache) {
+    if (cache && cache.posts.length > 0) {
       const pruned = pruneCache(cache);
       // If pruning removed posts, persist the trimmed state back.
       if (pruned.posts.length !== cache.posts.length) {
@@ -69,12 +77,40 @@ export async function GET(req: Request) {
         last_update: pruned.last_update,
       });
     }
-    // No cache yet - return empty. The cron will populate on next tick.
+    // Cold cache (post-deploy, post-wipe, or before first cron run): fetch
+    // the last 48h inline so the dashboard never sees an empty state.
+    // Posts return unscored; the dashboard's per-post scoring loop fills in
+    // and the next cron tick persists the scores back.
+    const warmListId = process.env.X_LIST_ID;
+    if (warmListId) {
+      try {
+        const fresh = await fetchListPosts({ listId: warmListId, hoursBack: 48 });
+        const state: CacheState = {
+          posts: fresh,
+          scores: {},
+          last_update: new Date().toISOString(),
+        };
+        await writeCache(state);
+        return NextResponse.json({
+          posts: fresh,
+          scores: {},
+          source: "cache-warmed",
+          last_update: state.last_update,
+        });
+      } catch (e) {
+        return NextResponse.json({
+          posts: [],
+          scores: {},
+          source: "cache-empty",
+          warning: `Warm-up failed: ${e instanceof Error ? e.message : "unknown"} - cron will fill cache on next tick.`,
+        });
+      }
+    }
     return NextResponse.json({
       posts: [],
       scores: {},
       source: "cache-empty",
-      warning: "Background poller hasn't populated the cache yet - wait a few minutes.",
+      warning: "X_LIST_ID not configured.",
     });
   }
 
