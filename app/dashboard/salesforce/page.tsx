@@ -42,17 +42,9 @@ const NOW_TICK_MS = 15_000;
 
 function timeAgo(date: Date | null, now: Date): string {
   if (!date) return "-";
-  const sec = Math.max(0, Math.floor((now.getTime() - date.getTime()) / 1000));
-  if (sec < 60) return `${sec}s ago`;
-  const min = Math.floor(sec / 60);
-  if (min < 60) return `${min}m ago`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}h ago`;
-  const day = Math.floor(hr / 24);
-  if (day < 30) return `${day}d ago`;
-  const mo = Math.floor(day / 30);
-  if (mo < 12) return `${mo}mo ago`;
-  return `${Math.floor(mo / 12)}y ago`;
+  const hr = Math.max(0, (now.getTime() - date.getTime()) / (3600 * 1000));
+  if (hr < 1) return "<1h ago";
+  return `${Math.floor(hr)}h ago`;
 }
 
 export default function SalesforceDemoPage() {
